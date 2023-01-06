@@ -1,7 +1,7 @@
 # views.py
 from allauth.socialaccount.models import SocialAccount
 from dj_rest_auth.forms import AllAuthPasswordResetForm
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,23 +22,34 @@ import requests
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 
-from dj_rest_auth.utils import jwt_encode
-from dj_rest_auth.registration.views import VerifyEmailView
 
-AllAuthPasswordResetForm
+# Confirm email
+class ConfirmEmailView(APIView):
+    permission_classes = [AllowAny]
 
-class CustomVerifyEmailView(VerifyEmailView):
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.kwargs['key'] = serializer.validated_data['key']
-        confirmation = self.get_object()
+    def get(self, *args, **kwargs):
+        self.object = confirmation = self.get_object()
         confirmation.confirm(self.request)
+        # A React Router Route will handle the failure scenario
+        return HttpResponseRedirect('/login/success/')
 
-        self.access_token, self.refresh_token = jwt_encode(confirmation.email_address.user)
-        return Response({"refresh": str(self.refresh_token), "access": str(self.access_token)})
+    def get_object(self, queryset=None):
+        key = self.kwargs['key']
+        email_confirmation = EmailConfirmationHMAC.from_key(key)
+        if not email_confirmation:
+            if queryset is None:
+                queryset = self.get_queryset()
+            try:
+                email_confirmation = queryset.get(key=key.lower())
+            except EmailConfirmation.DoesNotExist:
+                # A React Router Route will handle the failure scenario
+                return HttpResponseRedirect('/login/failure/')
+        return email_confirmation
 
+    def get_queryset(self):
+        qs = EmailConfirmation.objects.all_valid()
+        qs = qs.select_related("email_address__user")
+        return qs
 
 # 소셜 로그인 변수 설정
 state = os.environ.get("STATE")

@@ -1,16 +1,16 @@
 from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, PasswordChangeView, LoginView, LogoutView, UserDetailsView
-from dj_rest_auth.registration.views import VerifyEmailView, RegisterView
-from django.urls import include, path, re_path
+from dj_rest_auth.registration.views import VerifyEmailView, RegisterView, ResendEmailVerificationView
+from django.urls import path, re_path
 from django.conf import settings
-from .views import GoogleToDjangoLogin, google_login, google_callback, CustomVerifyEmailView
+from .views import ConfirmEmailView, google_login, google_callback, GoogleToDjangoLogin
 
 urlpatterns = [
     # URLs that do not require a session or valid token
     path('registration/', RegisterView.as_view(), name='registration'),
-    path('account-confirm-email/', CustomVerifyEmailView.as_view(), name='account_email_verification_sent'),
-    # 배포 시에는 client url로 redirect해야 할 것 같습니다.
-    re_path(r'^account-confirm-email/(?P<key>[-:\w]+)/$', CustomVerifyEmailView.as_view(),
-     name='account_confirm_email'),
+    path('registration/resend-email', ResendEmailVerificationView.as_view(), name="rest_resend_email"),
+    re_path(r'^account-confirm-email/$', VerifyEmailView.as_view(), name='account_email_verification_sent'),
+    # 유저가 클릭한 이메일(=링크) 확인
+    re_path(r'^account-confirm-email/(?P<key>[-:\w]+)/$', ConfirmEmailView.as_view(), name='account_confirm_email'),
     path('password/reset/', PasswordResetView.as_view(), name='password_reset'),
     # 배포 시에는 client url로 redirect해야 할 것 같습니다.
     path('password/reset/confirm/<uid>/<token>', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
