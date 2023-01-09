@@ -1,19 +1,19 @@
 # views.py
+import datetime
+
 from allauth.socialaccount.models import SocialAccount
-from dj_rest_auth.forms import AllAuthPasswordResetForm
 from django.http import JsonResponse, HttpResponseRedirect
-from rest_framework import status
-from rest_framework.response import Response
+from rest_framework import status, generics
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
-from .models import User
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from .models import User, Task
 
 # Email Verification
 from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 
 # Social Login
 from dj_rest_auth.registration.views import SocialLoginView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from json import JSONDecodeError
 import os
 import requests
@@ -22,15 +22,15 @@ import requests
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 
+from .serializers import TaskSerializer, TaskUpdateNameSerializer, TaskUpdateDateSerializer
 
-# Confirm email
 class ConfirmEmailView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, *args, **kwargs):
         self.object = confirmation = self.get_object()
         confirmation.confirm(self.request)
-        # A React Router Route will handle the failure scenario
+
         return HttpResponseRedirect('/login/success/')
 
     def get_object(self, queryset=None):
@@ -40,9 +40,9 @@ class ConfirmEmailView(APIView):
             if queryset is None:
                 queryset = self.get_queryset()
             try:
-                email_confirmation = queryset.get(key=key.lower())
+               email_confirmation = queryset.get(key=key.lower())
             except EmailConfirmation.DoesNotExist:
-                # A React Router Route will handle the failure scenario
+                 # A React Router Route will handle the failure scenario
                 return HttpResponseRedirect('/login/failure/')
         return email_confirmation
 
@@ -50,6 +50,7 @@ class ConfirmEmailView(APIView):
         qs = EmailConfirmation.objects.all_valid()
         qs = qs.select_related("email_address__user")
         return qs
+
 
 # 소셜 로그인 변수 설정
 state = os.environ.get("STATE")
@@ -147,3 +148,75 @@ class GoogleToDjangoLogin(SocialLoginView): # if you want to use Authorization C
     adapter_class = GoogleOAuth2Adapter
     callback_url = GOOGLE_CALLBACK_URI
     client_class = OAuth2Client
+
+
+class TaskListCreateView(generics.ListCreateAPIView):
+    def get_queryset(self):
+        uid = self.request.user.id
+        return Task.objects.filter(created_by_id=uid)
+
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        uid = self.request.user.id
+        serializer.save(created_by_id=uid)
+
+class TaskListView(generics.ListCreateAPIView):
+    def get_queryset(self):
+        uid = self.request.user.id
+        date = self.kwargs['date']
+        return Task.objects.filter(created_by_id=uid, date=date)
+
+    serializer_class = TaskUpdateNameSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        uid = self.request.user.id
+        date = self.kwargs['date']
+        serializer.save(created_by_id=uid, date=date)
+
+class TaskDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    def get_object(self):
+        uid = self.request.user.id
+        tid = self.kwargs['tid']
+        return get_object_or_404(Task, created_by_id=uid, id=tid)
+
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'delete']
+
+class TaskUpdateNameView(generics.RetrieveUpdateDestroyAPIView):
+    def get_object(self):
+        uid = self.request.user.id
+        tid = self.kwargs['tid']
+        return get_object_or_404(Task, created_by_id=uid, id=tid)
+
+    serializer_class = TaskUpdateNameSerializer
+    http_method_names = ['get', 'put']
+
+
+class TaskUpdateDateView(generics.RetrieveUpdateDestroyAPIView):
+    def get_object(self):
+        uid = self.request.user.id
+        tid = self.kwargs['tid']
+        return get_object_or_404(Task, created_by_id=uid, id=tid)
+
+    serializer_class = TaskUpdateDateSerializer
+    http_method_names = ['get', 'put']
+
+def switch_complete(request, *args, **kwargs):
+    uid = request.user.id
+    tid = kwargs.get('tid')
+    task = get_object_or_404(Task, created_by_id=uid, id=tid)
+    task.complete = not task.complete
+    task.save()
+    return redirect(f"http://127.0.0.1:8000/accounts/task/{tid}") #실제 url
+
+def switch_tomorrow(request, *args, **kwargs):
+    uid = request.user.id
+    tid = kwargs.get('tid')
+    task = get_object_or_404(Task, created_by_id=uid, id=tid)
+    task.date = task.date + datetime.timedelta(days=1)
+    task.save()
+    return redirect(f"http://127.0.0.1:8000/accounts/task/{tid}")  # 실제 url

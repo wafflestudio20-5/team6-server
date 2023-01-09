@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from dj_rest_auth.serializers import LoginSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
-from .models import User
+from .models import User, Task
 
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
@@ -92,3 +92,31 @@ class CustomPasswordResetSerializer(PasswordResetSerializer):
     def password_reset_form_class(self):
         return CustomAllAuthPasswordResetForm
 
+
+class TaskSerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    complete = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Task
+        fields = ['id', 'date', 'name', 'complete', 'created_by']
+
+
+class TaskUpdateNameSerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    complete = serializers.PrimaryKeyRelatedField(read_only=True)
+    date = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Task
+        fields = ['id', 'date', 'name', 'complete', 'created_by']
+
+
+class TaskUpdateDateSerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    complete = serializers.PrimaryKeyRelatedField(read_only=True)
+    name = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Task
+        fields = ['id', 'date', 'name', 'complete', 'created_by']
