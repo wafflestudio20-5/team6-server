@@ -49,7 +49,7 @@ class CustomLoginSerializer(LoginSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'nickname', 'detail']
+        fields = ['id', 'email', 'nickname', 'detail', 'image']
 
 
 class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
