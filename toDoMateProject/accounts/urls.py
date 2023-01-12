@@ -1,38 +1,33 @@
 from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, PasswordChangeView, LoginView, LogoutView, UserDetailsView
 from dj_rest_auth.registration.views import VerifyEmailView, RegisterView, ResendEmailVerificationView
-from django.urls import path, re_path
-from django.conf import settings
-from .views import ConfirmEmailView, google_login, google_callback, GoogleToDjangoLogin
+from dj_rest_auth.jwt_auth import get_refresh_view
+from rest_framework_simplejwt.views import TokenVerifyView
+from django.urls import path, re_path, include
+from .views import ConfirmEmailView, GoogleLogin, KakaoLogin, GoogleConnect, KakaoConnect
 
 urlpatterns = [
-    # URLs that do not require a session or valid token
+    # Registration
     path('registration/', RegisterView.as_view(), name='registration'),
     path('registration/resend-email', ResendEmailVerificationView.as_view(), name="rest_resend_email"),
     re_path(r'^account-confirm-email/$', VerifyEmailView.as_view(), name='account_email_verification_sent'),
-    # 유저가 클릭한 이메일(=링크) 확인
     re_path(r'^account-confirm-email/(?P<key>[-:\w]+)/$', ConfirmEmailView.as_view(), name='account_confirm_email'),
+    # Password
     path('password/reset/', PasswordResetView.as_view(), name='password_reset'),
-    # 배포 시에는 client url로 redirect해야 할 것 같습니다.
     path('password/reset/confirm/<uid>/<token>', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('password/reset/confirm/', PasswordResetConfirmView.as_view()),
+    ## path('password/change/', PasswordChangeView.as_view(), name='password_change'),
+    # Login/logout
     path('login/', LoginView.as_view(), name='login'),
-    # URLs that require a user to be logged in with a valid session / token.
     path('logout/', LogoutView.as_view(), name='logout'),
+    # User detail
     path('user/', UserDetailsView.as_view(), name='user_details'),
-    # path('password/change/', PasswordChangeView.as_view(), name='password_change'),
-    # Google Login
-    path('google/login', google_login),
-    path('google/callback', google_callback),
-    path('google/login/django', GoogleToDjangoLogin.as_view())
-
+    # Token
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('token/refresh/', get_refresh_view().as_view(), name='token_refresh'),
+    # Social Login
+    re_path(r'', include('allauth.urls'), name='socialaccount_signup'),
+    path('google/login', GoogleLogin.as_view(), name='google_login'),
+    path('google/connect', GoogleConnect.as_view(), name='google_connect'),
+    path('kakao/login', KakaoLogin.as_view(), name='kakao_login'),
+    path('kakao/connect', KakaoConnect.as_view(), name='kakao_connect'),
 ]
-
-if getattr(settings, 'REST_USE_JWT', False):
-    from rest_framework_simplejwt.views import TokenVerifyView
-
-    from dj_rest_auth.jwt_auth import get_refresh_view
-
-    urlpatterns += [
-        path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-        path('token/refresh/', get_refresh_view().as_view(), name='token_refresh'),
-    ]
