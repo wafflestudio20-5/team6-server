@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.kakao',
     'allauth.socialaccount.providers.naver',
     'accounts.apps.AccountsConfig',
+    'task.apps.TaskConfig',
+    'diary.apps.DiaryConfig',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -220,3 +222,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True
