@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.naver',
     'accounts.apps.AccountsConfig',
     'task.apps.TaskConfig',
+    'diary.apps.DiaryConfig',
 ]
 
 AUTHENTICATION_BACKENDS = [

@@ -12,6 +12,6 @@ urlpatterns = [
     path('<tid>/check', switch_complete),
     path('<tid>/delay', switch_tomorrow),
 
-    path('list/repeated', TaskListCreateView.as_view()),
+    #path('list/repeated', TaskListCreateView.as_view()),
     #path('task/repeated/')
 ]

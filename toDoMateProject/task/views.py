@@ -22,6 +22,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
         serializer.save(created_by_id=uid)
         #serializer.save(created_by_id=uid, repeated=0)
 
+
 class TaskListView(generics.ListCreateAPIView):
     def get_queryset(self):
         uid = self.request.user.id
@@ -38,6 +39,7 @@ class TaskListView(generics.ListCreateAPIView):
         serializer.save(created_by_id=uid, date=date)
         #serializer.save(created_by_id=uid, date=date, repeated=0)
 
+
 class TaskDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         uid = self.request.user.id
@@ -48,6 +50,7 @@ class TaskDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskSerializer
     #permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'delete']
+
 
 class TaskUpdateNameView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
@@ -68,13 +71,15 @@ class TaskUpdateDateView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskUpdateDateSerializer
     http_method_names = ['get', 'put']
 
+
 def switch_complete(request, *args, **kwargs):
     uid = request.user.id
     tid = kwargs.get('tid')
     task = get_object_or_404(Task, created_by_id=uid, id=tid)
     task.complete = not task.complete
     task.save()
-    return redirect(f"http://127.0.0.1:8000/accounts/task/{tid}") #실제 url
+    return redirect(f"http://127.0.0.1:8000/task/{tid}") #실제 url
+
 
 def switch_tomorrow(request, *args, **kwargs):
     uid = request.user.id
@@ -82,4 +87,4 @@ def switch_tomorrow(request, *args, **kwargs):
     task = get_object_or_404(Task, created_by_id=uid, id=tid)
     task.date = task.date + datetime.timedelta(days=1)
     task.save()
-    return redirect(f"http://127.0.0.1:8000/accounts/task/{tid}")  # 실제 url
+    return redirect(f"http://127.0.0.1:8000/task/{tid}")  # 실제 url
