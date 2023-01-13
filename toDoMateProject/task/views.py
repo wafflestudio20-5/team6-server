@@ -5,7 +5,8 @@ from rest_framework import generics
 
 from task.models import Task, Tag
 from task.serializers import TaskUpdateNameSerializer, TaskUpdateDateSerializer, \
-    TagListCreateSerializer, TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer
+    TagListCreateSerializer, TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer, \
+    TagDetailUpdateDestroySerializer
 
 
 # Create your views here.
@@ -96,6 +97,16 @@ class TagListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         uid = self.request.user.id
         serializer.save(created_by_id=uid)
+
+
+class TagDetailUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    def get_object(self):
+        uid = self.request.user.id
+        tid = self.kwargs['tid']
+        return get_object_or_404(Tag, created_by_id=uid, id=tid)
+
+    serializer_class = TagDetailUpdateDestroySerializer
+
 
 # class RepeatListCreateView(generics.ListCreateAPIView):
 #     def get_queryset(self):

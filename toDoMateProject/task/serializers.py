@@ -55,6 +55,14 @@ class TagListCreateSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'created_by']
 
 
+class TagDetailUpdateDestroySerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Tag
+        fields = ['id', 'name', 'created_by']
+
+
 # class RepeatListCreateSerializer(serializers.ModelSerializer):
 #     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
 #
