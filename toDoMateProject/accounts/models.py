@@ -19,8 +19,3 @@ class User(AbstractUser):
     def __str__(self):
         return self.email
 
-class Task(models.Model):
-    date = models.DateField()
-    name = models.CharField(max_length=50, blank=False, null=False)
-    complete = models.BooleanField(default=False)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)

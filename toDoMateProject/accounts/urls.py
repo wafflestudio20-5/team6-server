@@ -2,8 +2,7 @@ from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, Logi
 from dj_rest_auth.registration.views import VerifyEmailView, RegisterView, ResendEmailVerificationView
 from django.urls import path, re_path
 from django.conf import settings
-from .views import ConfirmEmailView, google_login, google_callback, GoogleToDjangoLogin, TaskListCreateView, \
-    switch_complete, switch_tomorrow, TaskDetailDestroyView, TaskUpdateNameView, TaskUpdateDateView, TaskListView
+from .views import ConfirmEmailView, google_login, google_callback, GoogleToDjangoLogin
 
 urlpatterns = [
     # URLs that do not require a session or valid token
@@ -24,15 +23,7 @@ urlpatterns = [
     # Google Login
     path('google/login', google_login),
     path('google/callback', google_callback),
-    path('google/login/django', GoogleToDjangoLogin.as_view()),
-
-    path('task/list', TaskListCreateView.as_view()),
-    path('task/list/<date>', TaskListView.as_view()),
-    path('task/<tid>', TaskDetailDestroyView.as_view()),
-    path('task/<tid>/name', TaskUpdateNameView.as_view()),
-    path('task/<tid>/date', TaskUpdateDateView.as_view()),
-    path('task/<tid>/check', switch_complete),
-    path('task/<tid>/delay', switch_tomorrow),
+    path('google/login/django', GoogleToDjangoLogin.as_view())
 ]
 
 if getattr(settings, 'REST_USE_JWT', False):
