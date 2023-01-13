@@ -38,6 +38,7 @@ urlpatterns = [
     # 일반 회원 회원가입/로그인
     path('accounts/', include('accounts.urls')),
     path('task/', include('task.urls')),
+    path('diary/', include('diary.urls')),
     # Swagger
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name="schema-json"),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
