@@ -1,7 +1,9 @@
 # views.py
 from django.http import HttpResponseRedirect
+from rest_framework import generics
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
+from .models import User
 
 # Email Verification
 from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
@@ -16,6 +18,8 @@ from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 # Kakao
 from allauth.socialaccount.providers.kakao import views as kakao_view
 
+from .permissions import IsCreator
+from .serializers import UserDetailSerializer
 
 
 # Confirm email
@@ -38,7 +42,7 @@ class ConfirmEmailView(APIView):
                 email_confirmation = queryset.get(key=key.lower())
             except EmailConfirmation.DoesNotExist:
                 # A React Router Route will handle the failure scenario
-                return HttpResponseRedirect('/login/failure/')
+                return HttpResponseRedirect(f'https://wafmate/fragment/emailauthenticate2301061457/')
         return email_confirmation
 
     def get_queryset(self):
@@ -47,6 +51,7 @@ class ConfirmEmailView(APIView):
         return qs
 
 
+# Social login
 class GoogleLogin(SocialLoginView): # if you want to use Authorization Code Grant, use this
     adapter_class = GoogleOAuth2Adapter
     client_class = OAuth2Client
@@ -65,3 +70,9 @@ class KakaoLogin(SocialLoginView):
 class KakaoConnect(SocialConnectView):
     adapter_class = kakao_view.KakaoOAuth2Adapter
     client_class = OAuth2Client
+
+
+class UserDestroyView(generics.DestroyAPIView):
+    queryset = User.objects.all()
+    permission_classes = [IsCreator | IsAdminUser]
+    serializer_class = UserDetailSerializer
