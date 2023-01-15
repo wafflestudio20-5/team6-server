@@ -4,6 +4,8 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser
 from .models import User
+from .permissions import IsCreator
+from .serializers import UserDetailSerializer
 
 # Email Verification
 from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
@@ -17,9 +19,6 @@ from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 
 # Kakao
 from allauth.socialaccount.providers.kakao import views as kakao_view
-
-from .permissions import IsCreator
-from .serializers import UserDetailSerializer
 
 
 # Confirm email
@@ -39,7 +38,7 @@ class ConfirmEmailView(APIView):
             if queryset is None:
                 queryset = self.get_queryset()
             try:
-                email_confirmation = queryset.get(key=key.lower())
+               email_confirmation = queryset.get(key=key.lower())
             except EmailConfirmation.DoesNotExist:
                 # A React Router Route will handle the failure scenario
                 return HttpResponseRedirect(f'https://wafmate/fragment/emailauthenticate2301061457/')
