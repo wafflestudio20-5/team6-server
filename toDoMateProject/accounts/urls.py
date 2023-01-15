@@ -1,4 +1,4 @@
-from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, PasswordChangeView, LoginView, LogoutView, UserDetailsView
+from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, LoginView, LogoutView, UserDetailsView
 from dj_rest_auth.registration.views import VerifyEmailView, RegisterView, ResendEmailVerificationView
 from django.urls import path, re_path
 from django.conf import settings
@@ -23,8 +23,7 @@ urlpatterns = [
     # Google Login
     path('google/login', google_login),
     path('google/callback', google_callback),
-    path('google/login/django', GoogleToDjangoLogin.as_view())
-
+    path('google/login/django', GoogleToDjangoLogin.as_view()),
 ]
 
 if getattr(settings, 'REST_USE_JWT', False):
