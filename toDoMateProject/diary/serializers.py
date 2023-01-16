@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from diary.models import Diary
+from diary.models import Diary, Comment
+
 
 class DiaryListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,3 +25,23 @@ class DiaryRetrieveUpdateDeleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Diary
         fields = ['id', 'date', 'context',  'created_by']
+
+
+class CommentListCreateSerializer(serializers.ModelSerializer):
+    diary = serializers.PrimaryKeyRelatedField(read_only=True)
+    created_at = serializers.PrimaryKeyRelatedField(read_only=True)
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'context', 'diary', 'created_at', 'created_by']
+
+
+class CommentRetrieveUpdateDestroySerializer(serializers.ModelSerializer):
+    diary = serializers.PrimaryKeyRelatedField(read_only=True)
+    created_at = serializers.PrimaryKeyRelatedField(read_only=True)
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'context', 'diary', 'created_at', 'created_by']
