@@ -15,3 +15,4 @@ class Comment(models.Model):
     diary = models.ForeignKey(Diary, on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
