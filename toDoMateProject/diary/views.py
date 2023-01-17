@@ -1,10 +1,8 @@
-from datetime import timezone
-
 from django.shortcuts import redirect, get_object_or_404
 from rest_framework import generics
 
 from diary.models import Diary, Comment
-from diary.permissions import IsOwnerOrReadOnly
+#from diary.permissions import IsOwnerOrReadOnly
 from diary.serializers import DiaryListSerializer, DiaryCreateSerializer, DiaryRetrieveUpdateDeleteSerializer, \
     CommentListCreateSerializer, CommentRetrieveUpdateDestroySerializer
 
