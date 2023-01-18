@@ -9,7 +9,7 @@ class DiaryListSerializer(serializers.ModelSerializer):
         fields = ['id', 'date', 'context', 'created_by']
 
 
-class DiaryCreateSerializer(serializers.ModelSerializer):
+class DiaryListCreateSerializer(serializers.ModelSerializer):
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
     date = serializers.PrimaryKeyRelatedField(read_only=True)
 

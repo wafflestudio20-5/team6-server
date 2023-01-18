@@ -2,6 +2,7 @@ import datetime
 
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 
 from task.models import Task, Tag
 from task.serializers import TaskUpdateNameSerializer, TaskUpdateDateSerializer, \
@@ -20,7 +21,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
         #return Task.objects.filter(created_by_id=uid, repeated=0) | Task.objects.filter(created_by_id=uid, repeated=1)
 
     serializer_class = TaskListCreateSerializer
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         # date = self.kwargs['date']
@@ -38,7 +39,7 @@ class TaskListView(generics.ListAPIView):
         #return Task.objects.filter(created_by_id=uid, date=date, repeated=0) | Task.objects.filter(created_by_id=uid, date=date, repeated=1)
 
     serializer_class = TaskListSerializer
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 class TaskDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -49,7 +50,7 @@ class TaskDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
         #return get_object_or_404(Task, created_by_id=uid, id=tid, repeated=0)
 
     serializer_class = TaskDetailDestroySerializer
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'delete']
 
 
@@ -60,7 +61,7 @@ class TaskUpdateNameView(generics.RetrieveUpdateDestroyAPIView):
         return get_object_or_404(Task, created_by_id=uid, id=tid)
 
     serializer_class = TaskUpdateNameSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'patch']
 
 
@@ -71,7 +72,7 @@ class TaskUpdateDateView(generics.RetrieveUpdateDestroyAPIView):
         return get_object_or_404(Task, created_by_id=uid, id=tid)
 
     serializer_class = TaskUpdateDateSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'patch']
 
 
@@ -112,7 +113,7 @@ class TagListCreateView(generics.ListCreateAPIView):
         return Tag.objects.filter(created_by_id=uid)
 
     serializer_class = TagListCreateSerializer
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         uid = self.request.user.id
@@ -126,7 +127,7 @@ class TagDetailUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         return get_object_or_404(Tag, created_by_id=uid, id=tid)
 
     serializer_class = TagDetailUpdateDestroySerializer
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 # class RepeatListCreateView(generics.ListCreateAPIView):
