@@ -4,10 +4,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from task.models import Task, Tag
+from task.models import Task#, Tag
 from task.serializers import TaskUpdateNameSerializer, TaskUpdateDateSerializer, \
-    TagListCreateSerializer, TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer, \
-    TagDetailUpdateDestroySerializer
+    TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer
 
 
 # Create your views here.
@@ -17,7 +16,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
         # return Task.objects.filter(date=date).order_by('tag')
         uid = self.request.user.id
         date = self.kwargs['date']
-        return Task.objects.filter(created_by_id=uid, date=date).order_by('tag')
+        return Task.objects.filter(created_by_id=uid, date=date)
         #return Task.objects.filter(created_by_id=uid, repeated=0) | Task.objects.filter(created_by_id=uid, repeated=1)
 
     serializer_class = TaskListCreateSerializer
@@ -35,7 +34,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
 class TaskListView(generics.ListAPIView):
     def get_queryset(self):
         uid = self.request.user.id
-        return Task.objects.filter(created_by_id=uid).order_by('date', 'tag')
+        return Task.objects.filter(created_by_id=uid).order_by('date')
         #return Task.objects.filter(created_by_id=uid, date=date, repeated=0) | Task.objects.filter(created_by_id=uid, date=date, repeated=1)
 
     serializer_class = TaskListSerializer
@@ -107,27 +106,27 @@ def switch_tomorrow(request, *args, **kwargs):
 #     serializer_class = TaskViewListSerializer
 
 
-class TagListCreateView(generics.ListCreateAPIView):
-    def get_queryset(self):
-        uid = self.request.user.id
-        return Tag.objects.filter(created_by_id=uid)
-
-    serializer_class = TagListCreateSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        uid = self.request.user.id
-        serializer.save(created_by_id=uid)
-
-
-class TagDetailUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    def get_object(self):
-        uid = self.request.user.id
-        tid = self.kwargs['tid']
-        return get_object_or_404(Tag, created_by_id=uid, id=tid)
-
-    serializer_class = TagDetailUpdateDestroySerializer
-    permission_classes = [IsAuthenticated]
+# class TagListCreateView(generics.ListCreateAPIView):
+#     def get_queryset(self):
+#         uid = self.request.user.id
+#         return Tag.objects.filter(created_by_id=uid)
+#
+#     serializer_class = TagListCreateSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def perform_create(self, serializer):
+#         uid = self.request.user.id
+#         serializer.save(created_by_id=uid)
+#
+#
+# class TagDetailUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+#     def get_object(self):
+#         uid = self.request.user.id
+#         tid = self.kwargs['tid']
+#         return get_object_or_404(Tag, created_by_id=uid, id=tid)
+#
+#     serializer_class = TagDetailUpdateDestroySerializer
+#     permission_classes = [IsAuthenticated]
 
 
 # class RepeatListCreateView(generics.ListCreateAPIView):
