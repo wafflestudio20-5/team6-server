@@ -12,10 +12,22 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+import json
+import pymysql
+
+pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+with open(os.path.join(BASE_DIR, "secrets.json")) as f:
+    secrets = json.loads(f.read())
+
+def get_secrets(setting, secrets=secrets):
+    try:
+        return secrets[setting]
+    except KeyError:
+        raise ValueError(f"Invalid Key Name {setting}")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -26,7 +38,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = get_secrets('ALLOWED_HOSTS')
 
 
 # Application definition
@@ -188,12 +200,7 @@ WSGI_APPLICATION = 'toDoMateProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+DATABASES = get_secrets("DATABASES")
 
 
 # Password validation
