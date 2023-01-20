@@ -8,7 +8,7 @@ from .views import ConfirmEmailView, GoogleLogin, KakaoLogin, GoogleConnect, Kak
 urlpatterns = [
     # Registration
     path('registration/', RegisterView.as_view(), name='registration'),
-    path('registration/resend-email', ResendEmailVerificationView.as_view(), name="rest_resend_email"),
+    path('registration/resend-email/', ResendEmailVerificationView.as_view(), name="rest_resend_email"),
     re_path(r'^account-confirm-email/$', VerifyEmailView.as_view(), name='account_email_verification_sent'),
     re_path(r'^account-confirm-email/(?P<key>[-:\w]+)/$', ConfirmEmailView.as_view(), name='account_confirm_email'),
     # Password

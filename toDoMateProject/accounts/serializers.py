@@ -70,10 +70,10 @@ class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
 
         for user in self.users:
             temp_key = token_generator.make_token(user)
-
-            path = f"custom_password_reset_url/{user_pk_to_url_str(user)}/{temp_key}/"
+            custom_password_reset_url = 'https://wafmate/fragment/emailauthenticate2301061457/'
+            path = f"{custom_password_reset_url}/{user_pk_to_url_str(user)}/{temp_key}/"
             url = build_absolute_uri(request, path)
-     #Values which are passed to password_reset_key_message.txt
+            # Values which are passed to password_reset_key_message.txt
             context = {
                 "current_site": current_site,
                 "user": user,
