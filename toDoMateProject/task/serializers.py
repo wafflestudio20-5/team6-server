@@ -18,7 +18,7 @@ class TaskListCreateSerializer(serializers.ModelSerializer):
         model = Task
         fields = ['id', 'date', 'name', 'complete', 'created_by']
 
-
+#commit
 class TaskDetailDestroySerializer(serializers.ModelSerializer):
     class Meta:
         model = Task

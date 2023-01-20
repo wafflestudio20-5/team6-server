@@ -32,6 +32,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
         uid = self.request.user.id
         date = self.kwargs['date']
         serializer.save(created_by_id=uid, date=date)
+        #print('function called')
         #serializer.save(created_by_id=uid, repeated=0)
 
 

@@ -13,7 +13,7 @@ urlpatterns = [
     path('detail/<int:tid>/delay', switch_tomorrow),
 
     #path('view/<uid>/<date>', TaskViewListView.as_view()),
-
+#commit
     # path('tag', TagListCreateView.as_view()),
     # path('tag/<int:tid>', TagDetailUpdateDestroyView.as_view())
 
