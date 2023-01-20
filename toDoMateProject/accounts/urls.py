@@ -9,8 +9,8 @@ urlpatterns = [
     # Registration
     path('registration/', RegisterView.as_view(), name='registration'),
     path('registration/resend-email', ResendEmailVerificationView.as_view(), name="rest_resend_email"),
-    re_path(r'^accounts-confirm-email/$', VerifyEmailView.as_view(), name='account_email_verification_sent'),
-    re_path(r'^accounts-confirm-email/(?P<key>[-:\w]+)/$', ConfirmEmailView.as_view(), name='account_confirm_email'),
+    re_path(r'^account-confirm-email/$', VerifyEmailView.as_view(), name='account_email_verification_sent'),
+    re_path(r'^account-confirm-email/(?P<key>[-:\w]+)/$', ConfirmEmailView.as_view(), name='account_confirm_email'),
     # Password
     path('password/reset/', PasswordResetView.as_view(), name='password_reset'),
     path('password/reset/confirm/<uid>/<token>', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
