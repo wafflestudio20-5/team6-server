@@ -51,6 +51,16 @@ class UserDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'nickname', 'detail', 'image']
 
 
+class CustomUserDetailSerializer(UserDetailSerializer):
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        return {"user": ret}
+
+    def to_internal_value(self, data):
+        user = data.get("user")
+        return super().to_internal_value(user)
+
+
 class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
 
     def clean_email(self):

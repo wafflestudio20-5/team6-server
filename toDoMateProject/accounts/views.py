@@ -1,11 +1,12 @@
 # views.py
+from dj_rest_auth.views import UserDetailsView
 from django.http import HttpResponseRedirect
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser
 from .models import User
 from .permissions import IsCreator
-from .serializers import UserDetailSerializer
+from .serializers import UserDetailSerializer, CustomUserDetailSerializer
 
 # Email Verification
 from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
@@ -19,6 +20,11 @@ from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 
 # Kakao
 from allauth.socialaccount.providers.kakao import views as kakao_view
+
+
+# Custom User Detail
+class CustomUserDetailsView(UserDetailsView):
+    serializer_class = CustomUserDetailSerializer
 
 
 # Confirm email
