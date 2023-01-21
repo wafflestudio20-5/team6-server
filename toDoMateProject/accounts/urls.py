@@ -3,7 +3,8 @@ from dj_rest_auth.registration.views import VerifyEmailView, RegisterView, Resen
 from dj_rest_auth.jwt_auth import get_refresh_view
 from rest_framework_simplejwt.views import TokenVerifyView
 from django.urls import path, re_path, include
-from .views import ConfirmEmailView, GoogleLogin, KakaoLogin, GoogleConnect, KakaoConnect, UserDestroyView
+from .views import ConfirmEmailView, GoogleLogin, KakaoLogin, GoogleConnect, KakaoConnect, UserDestroyView, \
+    CustomUserDetailsView
 
 urlpatterns = [
     # Registration
@@ -19,7 +20,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     # User detail
-    path('user/', UserDetailsView.as_view(), name='user_details'),
+    path('user/', CustomUserDetailsView.as_view(), name='user_details'),
     path('user/<int:pk>/', UserDestroyView.as_view(), name='user_delete'),
     # Token
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
