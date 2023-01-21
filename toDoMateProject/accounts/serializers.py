@@ -58,7 +58,7 @@ class CustomUserDetailSerializer(UserDetailSerializer):
 
     def to_internal_value(self, data):
         user = data.get("user")
-        return user
+        return super().to_internal_value(user)
 
 
 class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
