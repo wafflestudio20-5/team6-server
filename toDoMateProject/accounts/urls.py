@@ -26,9 +26,9 @@ urlpatterns = [
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('token/refresh/', get_refresh_view().as_view(), name='token_refresh'),
     # Social Login
-    re_path(r'', include('allauth.urls'), name='socialaccount_signup'),
     path('google/login/', GoogleLogin.as_view(), name='google_login'),
     path('google/connect/', GoogleConnect.as_view(), name='google_connect'),
     path('kakao/login/', KakaoLogin.as_view(), name='kakao_login'),
     path('kakao/connect/', KakaoConnect.as_view(), name='kakao_connect'),
+    re_path(r'', include('allauth.urls'), name='socialaccount_signup'),
 ]
