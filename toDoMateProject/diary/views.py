@@ -52,9 +52,9 @@ def diary_redirect(request, *args, **kwargs):
     diary = Diary.objects.filter(created_by_id=uid, date=date).first()
 
     if diary:
-        return redirect(f"http://127.0.0.1:8000/diary/mydiary/{date}/update")
+        return redirect(f"http://3.38.100.94/diary/mydiary/{date}/update")
     else:
-        return redirect(f"http://127.0.0.1:8000/diary/mydiary/{date}/create")
+        return redirect(f"http://3.38.100.94/diary/mydiary/{date}/create")
 
 
 class DiaryWatchView(generics.RetrieveUpdateDestroyAPIView):
