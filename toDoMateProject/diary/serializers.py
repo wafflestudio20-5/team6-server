@@ -6,7 +6,7 @@ from diary.models import Diary, Comment
 class DiaryListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Diary
-        fields = ['id', 'date', 'context', 'created_by']
+        fields = ['id', 'date', 'title', 'context', 'created_by']
 
 
 class DiaryListCreateSerializer(serializers.ModelSerializer):
@@ -15,7 +15,7 @@ class DiaryListCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Diary
-        fields = ['id', 'date', 'context', 'created_by']
+        fields = ['id', 'date', 'title', 'context', 'created_by']
 
 
 class DiaryRetrieveUpdateDeleteSerializer(serializers.ModelSerializer):
@@ -24,7 +24,7 @@ class DiaryRetrieveUpdateDeleteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Diary
-        fields = ['id', 'date', 'context',  'created_by']
+        fields = ['id', 'date', 'title', 'context',  'created_by']
 
 
 class CommentListCreateSerializer(serializers.ModelSerializer):

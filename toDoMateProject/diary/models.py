@@ -6,6 +6,7 @@ from accounts.models import User
 # Create your models here.
 class Diary(models.Model):
     date = models.DateField()
+    title = models.CharField(max_length=50, blank=False, null=False)
     context = models.CharField(max_length=500, blank=False, null=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
