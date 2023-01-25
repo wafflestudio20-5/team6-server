@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.parsers import MultiPartParser, FormParser
 from .models import User
 from .permissions import IsCreator
 from .serializers import UserDetailSerializer, CustomUserDetailSerializer
@@ -24,6 +25,7 @@ from allauth.socialaccount.providers.kakao import views as kakao_view
 
 # Custom User Detail
 class CustomUserDetailsView(UserDetailsView):
+    parser_classes = [MultiPartParser, FormParser]
     serializer_class = CustomUserDetailSerializer
 
 
