@@ -88,7 +88,7 @@ def switch_complete(request, *args, **kwargs):
     task = get_object_or_404(Task, created_by_id=uid, id=tid)
     task.complete = not task.complete
     task.save()
-    return redirect(f"http://127.0.0.1:8000/task/detail/{tid}") #실제 url
+    return redirect(f"http://3.38.100.94/task/detail/{tid}") #실제 url
 
 
 def switch_tomorrow(request, *args, **kwargs):
@@ -97,7 +97,7 @@ def switch_tomorrow(request, *args, **kwargs):
     task = get_object_or_404(Task, created_by_id=uid, id=tid)
     task.date = task.date + datetime.timedelta(days=1)
     task.save()
-    return redirect(f"http://127.0.0.1:8000/task/detail/{tid}")  # 실제 url
+    return redirect(f"http://3.38.100.94/task/detail/{tid}")  # 실제 url
 
 
 # class TaskViewListView(generics.ListAPIView):
