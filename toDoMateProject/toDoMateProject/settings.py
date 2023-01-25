@@ -12,22 +12,40 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+import json
+import pymysql
+
+pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+with open(os.path.join(BASE_DIR, "secrets.json")) as f:
+    secrets = json.loads(f.read())
+
+def get_secrets(setting, secrets=secrets):
+    try:
+        return secrets[setting]
+    except KeyError:
+        raise ValueError(f"Invalid Key Name {setting}")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = get_secrets('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = True
+DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = get_secrets('ALLOWED_HOSTS')
 
+# sudo vi gunicorn.service
+# sudo systemctl daemon-reload
+# sudo systemctl start gunicorn
+# sudo systemctl enable gunicorn
+# sudo systemctl -l status gunicorn
+# /home/ec2-user/todomate_server_update/venv/bin/gunicorn
 
 # Application definition
 
@@ -67,6 +85,7 @@ AUTHENTICATION_BACKENDS = [
 
 SITE_ID = 1
 REST_USE_JWT = True
+ACCOUNT_ADAPTER = 'accounts.adapter.CustomAccountAdapter'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
@@ -85,7 +104,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 2
+    'PAGE_SIZE': 10
 }
 
 REST_AUTH_SERIALIZERS = {
@@ -100,7 +119,7 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
@@ -116,8 +135,8 @@ SOCIALACCOUNT_PROVIDERS = {
         # (``socialaccount`` app) containing the required client
         # credentials, or list them here:
         'APP': {
-            'client_id': os.environ.get("SOCIAL_AUTH_GOOGLE_CLIENT_ID"),
-            'secret': os.environ.get("SOCIAL_AUTH_GOOGLE_SECRET"),
+            'client_id': get_secrets("SOCIAL_AUTH_GOOGLE_CLIENT_ID"),
+            'secret': get_secrets("SOCIAL_AUTH_GOOGLE_SECRET"),
             'key': ''
         },
         'SCOPE': [
@@ -128,14 +147,31 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'online',
         },
         'OAUTH_PKCE_ENABLED': True,
+    },
+    'kakao': {
+        # For each OAuth based provider, either add a ``SocialApp``
+        # (``socialaccount`` app) containing the required client
+        # credentials, or list them here:
+        'APP': {
+            'client_id': get_secrets("SOCIAL_AUTH_KAKAO_CLIENT_ID"),
+            'secret': get_secrets("SOCIAL_AUTH_KAKAO_SECRET"),
+            'key': ''
+        },
+        'SCOPE': [
+            'email',
+        ],
     }
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 EMAIL_HOST = 'smtp.gmail.com' # 메일 호스트 서버
 EMAIL_PORT = '587' # gmail과 통신하는 포트
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER") # 발신할 이메일
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD") # 발신할 메일의 비밀번호
+
+EMAIL_HOST_USER = get_secrets("EMAIL_HOST_USER") # 발신할 이메일
+EMAIL_HOST_PASSWORD = get_secrets("EMAIL_HOST_PASSWORD") # 발신할 메일의 비밀번호
+
 EMAIL_USE_TLS = True # TLS 보안 방법
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER # 사이트와 관련한 자동응답을 받을 이메일 주소
 
@@ -175,12 +211,7 @@ WSGI_APPLICATION = 'toDoMateProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+DATABASES = get_secrets("DATABASES")
 
 
 # Password validation
@@ -217,9 +248,20 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
-STATIC_URL = 'static/'
+STATIC_ROOT = str(BASE_DIR) + "/static/"
+STATIC_URL = "/static/"
+# STATICFILES_DIRS = [
+#     str(BASE_DIR) + "/static/"
+# ]
+# STATICFILES_DIRS = []
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# // "ALLOWED_HOSTS" : ["http://3.38.100.94/", "localhost"],
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
