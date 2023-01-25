@@ -46,6 +46,12 @@ class CustomLoginSerializer(LoginSerializer):
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if "localhost" in ret["image"]:
+            ret["image"] = ret["image"].replace("localhost", "3.38.100.94")
+        return ret
+
     class Meta:
         model = User
         fields = ['id', 'email', 'nickname', 'detail', 'image']
@@ -54,11 +60,9 @@ class UserDetailSerializer(serializers.ModelSerializer):
 class CustomUserDetailSerializer(UserDetailSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
+        if "localhost" in ret["image"]:
+            ret["image"] = ret["image"].replace("localhost", "3.38.100.94")
         return {"user": ret}
-
-    def to_internal_value(self, data):
-        user = data.get("user")
-        return super().to_internal_value(user)
 
 
 class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
