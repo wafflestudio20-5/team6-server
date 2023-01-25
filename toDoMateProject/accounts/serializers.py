@@ -48,17 +48,13 @@ class CustomLoginSerializer(LoginSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'nickname', 'detail', 'image']
+        fields = ['id', 'email', 'nickname', 'detail']
 
 
 class CustomUserDetailSerializer(UserDetailSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         return {"user": ret}
-
-    def to_internal_value(self, data):
-        user = data.get("user")
-        return super().to_internal_value(user)
 
 
 class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
