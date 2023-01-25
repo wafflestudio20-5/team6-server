@@ -9,6 +9,7 @@ class Diary(models.Model):
     title = models.CharField(max_length=50, blank=False, null=False)
     context = models.CharField(max_length=500, blank=False, null=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    nickname = models.CharField(max_length=50, blank=True)
 
 
 class Comment(models.Model):
