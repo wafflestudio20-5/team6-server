@@ -6,25 +6,27 @@ from diary.models import Diary, Comment
 class DiaryListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Diary
-        fields = ['id', 'date', 'title', 'context', 'created_by']
+        fields = ['id', 'date', 'title', 'context', 'created_by', 'nickname']
 
 
 class DiaryListCreateSerializer(serializers.ModelSerializer):
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    nickname = serializers.PrimaryKeyRelatedField(read_only=True)
     date = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Diary
-        fields = ['id', 'date', 'title', 'context', 'created_by']
+        fields = ['id', 'date', 'title', 'context', 'created_by', 'nickname']
 
 
 class DiaryRetrieveUpdateDeleteSerializer(serializers.ModelSerializer):
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    nickname = serializers.PrimaryKeyRelatedField(read_only=True)
     date = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Diary
-        fields = ['id', 'date', 'title', 'context',  'created_by']
+        fields = ['id', 'date', 'title', 'context',  'created_by', 'nickname']
 
 
 class CommentListCreateSerializer(serializers.ModelSerializer):

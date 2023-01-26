@@ -4,6 +4,7 @@ from django.shortcuts import redirect, get_object_or_404
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
+from accounts.models import User
 from diary.models import Diary, Comment
 from diary.permissions import IsOwnerOrReadOnly
 from diary.serializers import DiaryListSerializer, DiaryListCreateSerializer, DiaryRetrieveUpdateDeleteSerializer, \
@@ -32,7 +33,8 @@ class DiaryListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         uid = self.request.user.id
         date = self.kwargs['date']
-        serializer.save(created_by_id=uid, date=date)
+        nickname = User.objects.get(uid=id).nickname
+        serializer.save(created_by_id=uid, date=date, nickname=nickname)
 
 
 class DiaryRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
