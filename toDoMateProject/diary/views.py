@@ -33,7 +33,7 @@ class DiaryListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         uid = self.request.user.id
         date = self.kwargs['date']
-        nickname = User.objects.get(uid=id).nickname
+        nickname = User.objects.get(id=uid).nickname
         serializer.save(created_by_id=uid, date=date, nickname=nickname)
 
 
