@@ -41,6 +41,8 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('task/', include('task.urls')),
     path('diary/', include('diary.urls')),
+    # Debug toolbar
+    path('__debug__/', include('debug_toolbar.urls')),
     # Swagger
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name="schema-json"),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

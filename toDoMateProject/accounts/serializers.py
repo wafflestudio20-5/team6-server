@@ -52,9 +52,18 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 
 class CustomUserDetailSerializer(UserDetailSerializer):
+    def to_internal_value(self, data):
+        data = data.get["user"]
+        return super().to_representation(data)
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         return {"user": ret}
+
+
+class UserImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['image']
 
 
 class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):

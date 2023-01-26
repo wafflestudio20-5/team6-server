@@ -4,7 +4,7 @@ from dj_rest_auth.jwt_auth import get_refresh_view
 from rest_framework_simplejwt.views import TokenVerifyView
 from django.urls import path, re_path, include
 from .views import ConfirmEmailView, GoogleLogin, KakaoLogin, GoogleConnect, KakaoConnect, UserDestroyView, \
-    CustomUserDetailsView
+    CustomUserDetailsView, UserImageRetrieveUpdateDestroyView
 
 urlpatterns = [
     # Registration
@@ -22,6 +22,7 @@ urlpatterns = [
     # User detail
     path('user/', CustomUserDetailsView.as_view(), name='user_details'),
     path('user/<int:pk>/', UserDestroyView.as_view(), name='user_delete'),
+    path('image/<int:pk>/', UserImageRetrieveUpdateDestroyView.as_view(), name='user_details'),
     # Token
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('token/refresh/', get_refresh_view().as_view(), name='token_refresh'),
