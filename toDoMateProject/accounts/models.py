@@ -13,10 +13,7 @@ class User(AbstractUser):
     nickname = models.CharField(max_length=50, blank=True)
     detail = models.CharField(max_length=200, blank=True)
     # private과 public 중 어떤 것을 할지 몰라 일단 public으로 설정했습니다.
-    if settings.USE_S3:
-        image = models.ImageField(storage=PublicMediaStorage())
-    else:
-        image = models.ImageField(default='default.jpg')
+    image = models.ImageField(storage=PublicMediaStorage())
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
