@@ -40,7 +40,11 @@ SECRET_KEY = get_secrets('SECRET_KEY')
 
 ALLOWED_HOSTS = get_secrets('ALLOWED_HOSTS')
 
+<<<<<<< HEAD
 # sudo vi gunicorn.service 
+=======
+# sudo vi gunicorn.service
+>>>>>>> 5248c28140d00c66e29bb4fcbb3641032c0acc61
 # sudo systemctl daemon-reload
 # sudo systemctl start gunicorn
 # sudo systemctl enable gunicorn
@@ -57,8 +61,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'debug_toolbar',
-    'drf_yasg',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
@@ -69,7 +71,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.kakao',
-    'allauth.socialaccount.providers.naver',
+    'debug_toolbar',
+    'drf_yasg',
     'accounts.apps.AccountsConfig',
     'task.apps.TaskConfig',
     'diary.apps.DiaryConfig',
@@ -85,6 +88,7 @@ AUTHENTICATION_BACKENDS = [
 
 SITE_ID = 1
 REST_USE_JWT = True
+ACCOUNT_ADAPTER = 'accounts.adapter.CustomAccountAdapter'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
@@ -103,7 +107,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 2
+    'PAGE_SIZE': 10
 }
 
 REST_AUTH_SERIALIZERS = {
@@ -178,7 +182,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -203,6 +207,8 @@ TEMPLATES = [
         },
     },
 ]
+
+INTERNAL_IPS = ["127.0.0.1", ]
 
 WSGI_APPLICATION = 'toDoMateProject.wsgi.application'
 

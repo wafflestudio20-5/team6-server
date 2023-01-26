@@ -48,7 +48,22 @@ class CustomLoginSerializer(LoginSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'nickname', 'detail', 'image']
+        fields = ['id', 'email', 'nickname', 'detail']
+
+
+class CustomUserDetailSerializer(UserDetailSerializer):
+    def to_internal_value(self, data):
+        data = data.get["user"]
+        return super().to_representation(data)
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        return {"user": ret}
+
+
+class UserImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['image']
 
 
 class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
@@ -70,10 +85,10 @@ class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
 
         for user in self.users:
             temp_key = token_generator.make_token(user)
-
-            path = f"custom_password_reset_url/{user_pk_to_url_str(user)}/{temp_key}/"
+            custom_password_reset_url = 'https://wafmate/fragment/emailauthenticate2301061457/'
+            path = f"{custom_password_reset_url}/{user_pk_to_url_str(user)}/{temp_key}/"
             url = build_absolute_uri(request, path)
-     #Values which are passed to password_reset_key_message.txt
+            # Values which are passed to password_reset_key_message.txt
             context = {
                 "current_site": current_site,
                 "user": user,
@@ -85,7 +100,7 @@ class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
             if app_settings.AUTHENTICATION_METHOD != app_settings.AuthenticationMethod.EMAIL:
                 context['username'] = user_username(user)
             get_adapter(request).send_mail(
-                'account/email/password_reset_key', email, context
+                'accounts/email/password_reset_key', email, context
             )
 
         return self.cleaned_data['email']
