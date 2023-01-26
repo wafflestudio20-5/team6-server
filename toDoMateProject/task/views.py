@@ -3,6 +3,7 @@ import datetime
 from django.db.models import TextField
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import generics
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from django.db.models.functions import Cast
 from rest_framework.decorators import api_view
@@ -82,6 +83,10 @@ class TaskUpdateDateView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'patch']
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c64471bb6e9b7e5b47b63fb0dd30b1c1788985f2
 @api_view(['GET'])
 def switch_complete(request, *args, **kwargs):
     uid = request.user.id
@@ -92,6 +97,10 @@ def switch_complete(request, *args, **kwargs):
     # return redirect(f"http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000/task/detail/{tid}") #실제 url
     return redirect(f"http://3.38.100.94/task/detail/{tid}") #실제 url
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c64471bb6e9b7e5b47b63fb0dd30b1c1788985f2
 @api_view(['GET'])
 def switch_tomorrow(request, *args, **kwargs):
     uid = request.user.id
