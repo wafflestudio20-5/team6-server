@@ -36,7 +36,7 @@ def get_secrets(setting, secrets=secrets):
 SECRET_KEY = get_secrets('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
 
 ALLOWED_HOSTS = get_secrets('ALLOWED_HOSTS')
 
@@ -57,8 +57,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'debug_toolbar',
-    'drf_yasg',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
@@ -69,7 +67,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.kakao',
-    'allauth.socialaccount.providers.naver',
+    'debug_toolbar',
+    'drf_yasg',
     'accounts.apps.AccountsConfig',
     'task.apps.TaskConfig',
     'diary.apps.DiaryConfig',
@@ -179,7 +178,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -204,6 +203,8 @@ TEMPLATES = [
         },
     },
 ]
+
+INTERNAL_IPS = ["127.0.0.1", ]
 
 WSGI_APPLICATION = 'toDoMateProject.wsgi.application'
 
@@ -248,16 +249,34 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
-STATIC_ROOT = str(BASE_DIR) + "/static/"
-STATIC_URL = "/static/"
-# STATICFILES_DIRS = [
-#     str(BASE_DIR) + "/static/"
-# ]
-# STATICFILES_DIRS = []
+USE_S3 = get_secrets('USE_S3') == 'TRUE'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# // "ALLOWED_HOSTS" : ["http://3.38.100.94/", "localhost"],
+if USE_S3:
+    # aws settings
+    AWS_ACCESS_KEY_ID = get_secrets('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = get_secrets('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = get_secrets('AWS_STORAGE_BUCKET_NAME')
+    AWS_DEFAULT_ACL = None
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    # s3 static settings
+    STATIC_LOCATION = 'static'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+    STATICFILES_STORAGE = 'hello_django.storage_backends.StaticStorage'
+    # s3 public media settings
+    PUBLIC_MEDIA_LOCATION = 'media'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'toDoMateProject.storage_backends.PublicMediaStorage'
+    # s3 private media settings
+    PRIVATE_MEDIA_LOCATION = 'private'
+    PRIVATE_FILE_STORAGE = 'toDoMateProject.storage_backends.PrivateMediaStorage'
+else:
+    STATIC_URL = '/static/'
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

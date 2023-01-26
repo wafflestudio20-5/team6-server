@@ -5,8 +5,8 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser
 from .models import User
-from .permissions import IsCreator
-from .serializers import UserDetailSerializer, CustomUserDetailSerializer
+from .permissions import IsCreator, IsCreatorOrReadOnly
+from .serializers import UserDetailSerializer, CustomUserDetailSerializer, UserImageSerializer
 
 # Email Verification
 from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
@@ -81,3 +81,9 @@ class UserDestroyView(generics.DestroyAPIView):
     queryset = User.objects.all()
     permission_classes = [IsCreator | IsAdminUser]
     serializer_class = UserDetailSerializer
+
+
+class UserImageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    permission_classes = [IsCreatorOrReadOnly | IsAdminUser]
+    serializer_class = UserImageSerializer
