@@ -2,6 +2,7 @@ from django.db.models import TextField
 from django.db.models.functions import Cast
 from django.shortcuts import redirect, get_object_or_404
 from rest_framework import generics
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import User
@@ -48,6 +49,7 @@ class DiaryRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
 
+@api_view(['GET'])
 def diary_redirect(request, *args, **kwargs):
     uid = request.user.id
     date = kwargs.get('date')
