@@ -20,14 +20,9 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     # User detail
-<<<<<<< HEAD
-    path('user/', UserDetailsView.as_view(), name='user_details'),
-    path('user/<int:pk>/', UserDestroyView.as_view(), name='user_delete'),
-=======
     path('user/', CustomUserDetailsView.as_view(), name='user_details'),
     path('user/<int:pk>/', UserDestroyView.as_view(), name='user_delete'),
     path('image/<int:pk>/', UserImageRetrieveUpdateDestroyView.as_view(), name='user_details'),
->>>>>>> 5248c28140d00c66e29bb4fcbb3641032c0acc61
     # Token
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('token/refresh/', get_refresh_view().as_view(), name='token_refresh'),
@@ -37,11 +32,4 @@ urlpatterns = [
     path('kakao/login/', KakaoLogin.as_view(), name='kakao_login'),
     path('kakao/connect/', KakaoConnect.as_view(), name='kakao_connect'),
     re_path(r'', include('allauth.urls'), name='socialaccount_signup'),
-<<<<<<< HEAD
-    path('google/login/', GoogleLogin.as_view(), name='google_login'),
-    path('google/connect/', GoogleConnect.as_view(), name='google_connect'),
-    path('kakao/login/', KakaoLogin.as_view(), name='kakao_login'),
-    path('kakao/connect/', KakaoConnect.as_view(), name='kakao_connect'),
-=======
->>>>>>> 5248c28140d00c66e29bb4fcbb3641032c0acc61
 ]
