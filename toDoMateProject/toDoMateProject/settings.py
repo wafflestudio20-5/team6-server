@@ -37,13 +37,6 @@ SECRET_KEY = get_secrets('SECRET_KEY')
 
 ALLOWED_HOSTS = get_secrets('ALLOWED_HOSTS')
 
-# sudo vi gunicorn.service
-# sudo systemctl daemon-reload
-# sudo systemctl start gunicorn
-# sudo systemctl enable gunicorn
-# sudo systemctl -l status gunicorn
-# /home/ec2-user/todomate_server_update/venv/bin/gunicorn
-
 # Application definition
 
 INSTALLED_APPS = [
