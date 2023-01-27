@@ -1,18 +1,24 @@
 # views.py
-from dj_rest_auth.views import UserDetailsView
-from django.http import HttpResponseRedirect
-from rest_framework import generics
-from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAdminUser
-from .models import User
-from .permissions import IsCreator, IsCreatorOrReadOnly
-from .serializers import UserDetailSerializer, CustomUserDetailSerializer, UserImageSerializer
 
-# Email Verification
-from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
+
+from allauth.account.models import EmailAddress
+from dj_rest_auth.serializers import PasswordResetSerializer
+from dj_rest_auth.views import UserDetailsView, sensitive_post_parameters_m
+import datetime
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from rest_framework import generics, status
+from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAdminUser
+from .models import User, Code
+from .permissions import IsCreator, IsCreatorOrReadOnly
+from .serializers import UserDetailSerializer, CustomUserDetailSerializer, UserImageSerializer, \
+    CustomRegisterSerializer, CodeSerializer, PasswordResetConfirmSerializer
 
 # Social Login
-from dj_rest_auth.registration.views import SocialLoginView, SocialConnectView
+from dj_rest_auth.registration.views import SocialLoginView, SocialConnectView, ResendEmailVerificationView
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 
 # Google
@@ -21,39 +27,97 @@ from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 # Kakao
 from allauth.socialaccount.providers.kakao import views as kakao_view
 
+from .utils import send_verification_mail
+
+
+# Registration
+class RegisterView(CreateAPIView):
+    serializer_class = CustomRegisterSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        send_verification_mail(email)
+        serializer.save(request)
+        data = {'detail': _('Verification e-mail sent.')}
+        headers = self.get_success_headers(serializer.data)
+        return Response(data, status=status.HTTP_200_OK, headers=headers)
+
+
+class RegisterConfirmView(APIView):
+    def post(self, request):
+        serializer = CodeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if not Code.objects.filter(code=serializer.validated_data['code'],
+                                   email=serializer.validated_data['email']).exists():
+            return Response({'code': 'Incorrect value.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        code = Code.objects.get(code=serializer.validated_data['code'], email=serializer.validated_data['email'])
+        if timezone.now()-code.created_at > datetime.timedelta(minutes=5):
+            code.delete()
+            return Response({'code': 'The code is expired.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        code.delete()
+        user = EmailAddress.objects.get(email=serializer.validated_data['email'])
+        user.verified = True
+        user.save()
+        return Response({'message':'The user account has been created successfully.'}, status=status.HTTP_201_CREATED)
+
+
+# Password reset
+class PasswordResetView(GenericAPIView):
+    serializer_class = PasswordResetSerializer
+
+    def post(self, request, *args, **kwargs):
+        # Create a serializer with request.data
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        send_verification_mail(email)
+        # Return the success message with OK HTTP status
+        return Response(
+            {'detail': _('Password reset e-mail has been sent.')},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordResetConfirmView(GenericAPIView):
+    serializer_class = PasswordResetConfirmSerializer
+
+    @sensitive_post_parameters_m
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {'detail': _('Password has been reset with the new password.')},
+        )
+
+
+# Resend email verification mail
+class CustomResendEmailVerificationView(ResendEmailVerificationView):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if not EmailAddress.objects.filter(**serializer.validated_data).exists():
+            return Response({"email": "This email address is not registered."},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        email = serializer.validated_data["email"]
+        send_verification_mail(email)
+        return Response({'detail': _('ok')}, status=status.HTTP_200_OK)
+
 
 # Custom User Detail
 class CustomUserDetailsView(UserDetailsView):
     serializer_class = CustomUserDetailSerializer
-
-
-# Confirm email
-class ConfirmEmailView(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, *args, **kwargs):
-        self.object = confirmation = self.get_object()
-        email = confirmation.confirm(self.request)
-        # A React Router Route will handle the failure scenario
-        return HttpResponseRedirect(f'https://wafmate/fragment/emailauthenticate2301061457/{email}')
-
-    def get_object(self, queryset=None):
-        key = self.kwargs['key']
-        email_confirmation = EmailConfirmationHMAC.from_key(key)
-        if not email_confirmation:
-            if queryset is None:
-                queryset = self.get_queryset()
-            try:
-               email_confirmation = queryset.get(key=key.lower())
-            except EmailConfirmation.DoesNotExist:
-                # A React Router Route will handle the failure scenario
-                return HttpResponseRedirect(f'https://wafmate/fragment/emailauthenticate2301061457/')
-        return email_confirmation
-
-    def get_queryset(self):
-        qs = EmailConfirmation.objects.all_valid()
-        qs = qs.select_related("email_address__user")
-        return qs
 
 
 # Social login

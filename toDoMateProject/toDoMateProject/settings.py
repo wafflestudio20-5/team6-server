@@ -33,7 +33,7 @@ def get_secrets(setting, secrets=secrets):
 SECRET_KEY = get_secrets('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = True
+DEBUG = True
 
 ALLOWED_HOSTS = get_secrets('ALLOWED_HOSTS')
 
@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.kakao',
+    'storages',
     'debug_toolbar',
     'drf_yasg',
     'accounts.apps.AccountsConfig',
@@ -100,13 +101,8 @@ REST_FRAMEWORK = {
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'accounts.serializers.UserDetailSerializer',
     'LOGIN_SERIALIZER': 'accounts.serializers.CustomLoginSerializer',
-    'PASSWORD_RESET_SERIALIZER': 'accounts.serializers.CustomPasswordResetSerializer',
-
 }
 
-REST_AUTH_REGISTER_SERIALIZERS = {
-    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer'
-}
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
