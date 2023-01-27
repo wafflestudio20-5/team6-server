@@ -3,8 +3,11 @@ import datetime
 from django.db.models import TextField
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import generics
+from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from django.db.models.functions import Cast
+from rest_framework.decorators import api_view
+
 
 from task.models import Task#, Tag
 from task.serializers import TaskUpdateNameSerializer, TaskUpdateDateSerializer, \
@@ -22,7 +25,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
         )
         return task
         #return Task.objects.filter(created_by_id=uid, repeated=0) | Task.objects.filter(created_by_id=uid, repeated=1)
-
+    
     serializer_class = TaskListCreateSerializer
     permission_classes = [IsAuthenticated]
 
@@ -41,7 +44,6 @@ class TaskListView(generics.ListAPIView):
         uid = self.request.user.id
         queryset = Task.objects.filter(created_by_id=uid).annotate(str_date=Cast('date', TextField())).order_by('date')
         return queryset
-
         #return Task.objects.filter(created_by_id=uid, date=date, repeated=0) | Task.objects.filter(created_by_id=uid, date=date, repeated=1)
 
     serializer_class = TaskListSerializer
@@ -81,22 +83,24 @@ class TaskUpdateDateView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'patch']
 
-
+@api_view(['GET'])
 def switch_complete(request, *args, **kwargs):
     uid = request.user.id
     tid = kwargs.get('tid')
     task = get_object_or_404(Task, created_by_id=uid, id=tid)
     task.complete = not task.complete
     task.save()
+    # return redirect(f"http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000/task/detail/{tid}") #실제 url
     return redirect(f"http://3.38.100.94/task/detail/{tid}") #실제 url
 
-
+@api_view(['GET'])
 def switch_tomorrow(request, *args, **kwargs):
     uid = request.user.id
     tid = kwargs.get('tid')
     task = get_object_or_404(Task, created_by_id=uid, id=tid)
     task.date = task.date + datetime.timedelta(days=1)
     task.save()
+    # return redirect(f"http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000/task/detail/{tid}") #실제 url
     return redirect(f"http://3.38.100.94/task/detail/{tid}")  # 실제 url
 
 

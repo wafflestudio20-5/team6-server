@@ -95,7 +95,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 class CustomUserDetailSerializer(UserDetailSerializer):
     def to_internal_value(self, data):
-        data = data.get["user"]
+        data = data.get("user")
         return super().to_representation(data)
 
     def to_representation(self, instance):
