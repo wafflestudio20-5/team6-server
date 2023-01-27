@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'task.apps.TaskConfig',
     'diary.apps.DiaryConfig',
+    'follow.apps.FollowConfig'
 ]
 
 AUTHENTICATION_BACKENDS = [

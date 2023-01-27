@@ -14,8 +14,8 @@ from task.serializers import TaskUpdateNameSerializer, TaskUpdateDateSerializer,
     TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer
 
 
-BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
-# http://3.38.100.94
+# BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
+BASE_URL = "http://3.38.100.94"
 
 # Create your views here.
 class TaskListCreateView(generics.ListCreateAPIView):

@@ -41,6 +41,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('task/', include('task.urls')),
     path('diary/', include('diary.urls')),
+    path('follow/', include('follow.urls')),
     path('search/', SearchUserDetailView.as_view()),
     # Debug toolbar
     path('__debug__/', include('debug_toolbar.urls')),

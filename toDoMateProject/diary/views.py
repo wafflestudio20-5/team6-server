@@ -17,8 +17,8 @@ from rest_framework.response import Response
 from django.http import Http404, HttpResponseBadRequest, HttpResponseNotFound
 import json
 
-BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
-# http://3.38.100.94
+# BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
+BASE_URL = "http://3.38.100.94"
 
 # Create your views here.
 class DiaryListView(generics.ListAPIView):
@@ -77,8 +77,8 @@ class DiaryWatchView(generics.RetrieveUpdateDestroyAPIView):
         return diary
 
     serializer_class = DiaryRetrieveUpdateDeleteSerializer
-    # permission_classes = [IsOwnerOrReadOnly]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrReadOnly]
+    # permission_classes = [IsAuthenticated]
     lookup_field = 'did'
 
 
