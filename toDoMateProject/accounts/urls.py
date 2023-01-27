@@ -1,17 +1,16 @@
-from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, LoginView, LogoutView, UserDetailsView
-from dj_rest_auth.registration.views import VerifyEmailView, RegisterView, ResendEmailVerificationView
+from dj_rest_auth.views import LoginView, LogoutView
 from dj_rest_auth.jwt_auth import get_refresh_view
 from rest_framework_simplejwt.views import TokenVerifyView
 from django.urls import path, re_path, include
-from .views import ConfirmEmailView, GoogleLogin, KakaoLogin, GoogleConnect, KakaoConnect, UserDestroyView, \
-    CustomUserDetailsView, UserImageRetrieveUpdateDestroyView
+from .views import RegisterView, GoogleLogin, KakaoLogin, GoogleConnect, KakaoConnect, UserDestroyView, \
+    CustomUserDetailsView, UserImageRetrieveUpdateDestroyView, RegisterConfirmView, CustomResendEmailVerificationView, \
+    PasswordResetView, PasswordResetConfirmView
 
 urlpatterns = [
     # Registration
     path('registration/', RegisterView.as_view(), name='registration'),
-    path('registration/resend-email/', ResendEmailVerificationView.as_view(), name="rest_resend_email"),
-    re_path(r'^account-confirm-email/$', VerifyEmailView.as_view(), name='account_email_verification_sent'),
-    re_path(r'^account-confirm-email/(?P<key>[-:\w]+)/$', ConfirmEmailView.as_view(), name='account_confirm_email'),
+    path('registration/confirm/', RegisterConfirmView.as_view(), name='registration_confirm'),
+    path('resend-email/', CustomResendEmailVerificationView.as_view(), name="rest_resend_email"),
     # Password
     path('password/reset/', PasswordResetView.as_view(), name='password_reset'),
     path('password/reset/confirm/<uid>/<token>', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
