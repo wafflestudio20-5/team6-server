@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from dj_rest_auth.serializers import LoginSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
-from .models import User
+from .models import User, Code
 
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
@@ -16,12 +16,17 @@ from dj_rest_auth.serializers import PasswordResetSerializer
 
 class CustomRegisterSerializer(RegisterSerializer):
     username = None
-
     def get_cleaned_data(self):
         return {
             'password1': self.validated_data.get('password1', ''),
             'email': self.validated_data.get('email', ''),
         }
+
+
+class CodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Code
+        fields = ['code', 'email']
 
 
 class CustomLoginSerializer(LoginSerializer):
