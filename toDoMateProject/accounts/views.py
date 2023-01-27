@@ -2,19 +2,20 @@
 
 
 from allauth.account.models import EmailAddress
-from dj_rest_auth.views import UserDetailsView
+from dj_rest_auth.serializers import PasswordResetSerializer
+from dj_rest_auth.views import UserDetailsView, sensitive_post_parameters_m
 import datetime
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework import generics, status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 from .models import User, Code
 from .permissions import IsCreator, IsCreatorOrReadOnly
 from .serializers import UserDetailSerializer, CustomUserDetailSerializer, UserImageSerializer, \
-    CustomRegisterSerializer, CodeSerializer
+    CustomRegisterSerializer, CodeSerializer, PasswordResetConfirmSerializer
 
 # Social Login
 from dj_rest_auth.registration.views import SocialLoginView, SocialConnectView, ResendEmailVerificationView
@@ -65,6 +66,41 @@ class RegisterConfirmView(APIView):
         return Response({'message':'The user account has been created successfully.'}, status=status.HTTP_201_CREATED)
 
 
+# Password reset
+class PasswordResetView(GenericAPIView):
+    serializer_class = PasswordResetSerializer
+
+    def post(self, request, *args, **kwargs):
+        # Create a serializer with request.data
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        send_verification_mail(email)
+        # Return the success message with OK HTTP status
+        return Response(
+            {'detail': _('Password reset e-mail has been sent.')},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordResetConfirmView(GenericAPIView):
+    serializer_class = PasswordResetConfirmSerializer
+
+    @sensitive_post_parameters_m
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {'detail': _('Password has been reset with the new password.')},
+        )
+
+
+# Resend email verification mail
 class CustomResendEmailVerificationView(ResendEmailVerificationView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -77,8 +113,6 @@ class CustomResendEmailVerificationView(ResendEmailVerificationView):
         email = serializer.validated_data["email"]
         send_verification_mail(email)
         return Response({'detail': _('ok')}, status=status.HTTP_200_OK)
-
-
 
 
 # Custom User Detail

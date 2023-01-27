@@ -1,9 +1,10 @@
-from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, LoginView, LogoutView
+from dj_rest_auth.views import LoginView, LogoutView
 from dj_rest_auth.jwt_auth import get_refresh_view
 from rest_framework_simplejwt.views import TokenVerifyView
 from django.urls import path, re_path, include
 from .views import RegisterView, GoogleLogin, KakaoLogin, GoogleConnect, KakaoConnect, UserDestroyView, \
-    CustomUserDetailsView, UserImageRetrieveUpdateDestroyView, RegisterConfirmView, CustomResendEmailVerificationView
+    CustomUserDetailsView, UserImageRetrieveUpdateDestroyView, RegisterConfirmView, CustomResendEmailVerificationView, \
+    PasswordResetView, PasswordResetConfirmView
 
 urlpatterns = [
     # Registration
@@ -12,7 +13,6 @@ urlpatterns = [
     path('resend-email/', CustomResendEmailVerificationView.as_view(), name="rest_resend_email"),
     # Password
     path('password/reset/', PasswordResetView.as_view(), name='password_reset'),
-    path('password/reset/confirm/<uid>/<token>', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('password/reset/confirm/', PasswordResetConfirmView.as_view()),
     # Login/logout
     path('login/', LoginView.as_view(), name='login'),
