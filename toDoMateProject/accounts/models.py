@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from toDoMateProject.storeage_backends import PublicMediaStorage
+from toDoMateProject.storage_backends import PublicMediaStorage
 from .managers import UserManager
 
 
@@ -22,4 +22,10 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class Code(models.Model):
+    code = models.IntegerField()
+    email = models.EmailField(max_length=254)
+    created_at = models.DateTimeField(auto_now_add=True)
 

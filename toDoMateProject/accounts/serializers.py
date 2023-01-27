@@ -1,27 +1,27 @@
+from allauth.account.models import EmailAddress
 from django.contrib.auth import authenticate
+from django.contrib.auth.forms import SetPasswordForm
+from django.utils import timezone
+import datetime
 from rest_framework import serializers
 from dj_rest_auth.serializers import LoginSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
-from .models import User
-
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.shortcuts import get_current_site
-from allauth.account import app_settings
-from allauth.account.adapter import get_adapter
-from allauth.account.utils import user_pk_to_url_str, user_username, filter_users_by_email
-from allauth.utils import build_absolute_uri
-from dj_rest_auth.forms import AllAuthPasswordResetForm
-from dj_rest_auth.serializers import PasswordResetSerializer
+from .models import User, Code
 
 
 class CustomRegisterSerializer(RegisterSerializer):
     username = None
-
     def get_cleaned_data(self):
         return {
             'password1': self.validated_data.get('password1', ''),
             'email': self.validated_data.get('email', ''),
         }
+
+
+class CodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Code
+        fields = ['code', 'email']
 
 
 class CustomLoginSerializer(LoginSerializer):
@@ -45,6 +45,48 @@ class CustomLoginSerializer(LoginSerializer):
         return attrs
 
 
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """
+    Serializer for confirming a password reset attempt.
+    """
+    new_password1 = serializers.CharField(max_length=128)
+    new_password2 = serializers.CharField(max_length=128)
+    email = serializers.EmailField()
+    code = serializers.IntegerField()
+
+    set_password_form_class = SetPasswordForm
+
+    _errors = {}
+    user = None
+    set_password_form = None
+
+    def validate(self, attrs):
+        code = attrs.get("code")
+        email = attrs.get("email")
+        if not Code.objects.filter(code=code,
+                                   email=email).exists():
+            raise serializers.ValidationError('The code and email does not match.')
+
+        code = Code.objects.get(code=code, email=email)
+        if timezone.now() - code.created_at > datetime.timedelta(minutes=5):
+            code.delete()
+            raise serializers.ValidationError('The code is expired.')
+
+        code.delete()
+        self.user = User._default_manager.get(email=email)
+        # Construct SetPasswordForm instance
+        self.set_password_form = self.set_password_form_class(
+            user=self.user, data=attrs,
+        )
+        if not self.set_password_form.is_valid():
+            raise serializers.ValidationError(self.set_password_form.errors)
+
+        return attrs
+
+    def save(self):
+        return self.set_password_form.save()
+
+
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -55,6 +97,7 @@ class CustomUserDetailSerializer(UserDetailSerializer):
     def to_internal_value(self, data):
         data = data.get["user"]
         return super().to_representation(data)
+
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         return {"user": ret}
@@ -64,49 +107,3 @@ class UserImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['image']
-
-
-class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
-
-    def clean_email(self):
-        """
-        Invalid email should not raise error, as this would leak users
-        for unit test: test_password_reset_with_invalid_email
-        """
-        email = self.cleaned_data["email"]
-        email = get_adapter().clean_email(email)
-        self.users = filter_users_by_email(email, is_active=True)
-        return self.cleaned_data["email"]
-
-    def save(self, request, **kwargs):
-        current_site = get_current_site(request)
-        email = self.cleaned_data['email']
-        token_generator = kwargs.get('token_generator', default_token_generator)
-
-        for user in self.users:
-            temp_key = token_generator.make_token(user)
-            custom_password_reset_url = 'https://wafmate/fragment/emailauthenticate2301061457/'
-            path = f"{custom_password_reset_url}/{user_pk_to_url_str(user)}/{temp_key}/"
-            url = build_absolute_uri(request, path)
-            # Values which are passed to password_reset_key_message.txt
-            context = {
-                "current_site": current_site,
-                "user": user,
-                "password_reset_url": url,
-                "request": request,
-                "path": path,
-            }
-
-            if app_settings.AUTHENTICATION_METHOD != app_settings.AuthenticationMethod.EMAIL:
-                context['username'] = user_username(user)
-            get_adapter(request).send_mail(
-                'accounts/email/password_reset_key', email, context
-            )
-
-        return self.cleaned_data['email']
-
-
-class CustomPasswordResetSerializer(PasswordResetSerializer):
-    @property
-    def password_reset_form_class(self):
-        return CustomAllAuthPasswordResetForm
