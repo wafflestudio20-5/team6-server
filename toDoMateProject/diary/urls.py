@@ -1,7 +1,7 @@
 from django.urls import path
 
 from diary.views import DiaryListView, diary_redirect, DiaryListCreateView, DiaryRetrieveUpdateDeleteView, DiaryWatchView, \
-    CommentListCreateView, CommentRetrieveUpdateDestroyView
+    CommentListCreateView, CommentRetrieveUpdateDestroyView ,DiarySearchListView, diary_search_redirect
 
 urlpatterns = [
     path('mydiary/', DiaryListView.as_view()),
@@ -12,4 +12,7 @@ urlpatterns = [
     path('watch/<did>/', DiaryWatchView.as_view()),
     path('comment/<did>/', CommentListCreateView.as_view()),
     path('comment/detail/<cid>/', CommentRetrieveUpdateDestroyView.as_view()),
+    
+    path('search/', DiarySearchListView.as_view()),
+    path('search/<date>/', diary_search_redirect),
 ]
