@@ -10,8 +10,8 @@ from rest_framework.decorators import api_view
 
 
 from task.models import Task#, Tag
-from task.serializers import TaskUpdateNameSerializer, TaskUpdateDateSerializer, \
-    TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer, TaskUpdateTimeSerializer
+from task.serializers import TaskUpdateSerializer, \
+    TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer
 
 # BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
 BASE_URL = "http://3.38.100.94"
@@ -68,7 +68,7 @@ class TaskDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
     http_method_names = ['get', 'delete']
 
 
-class TaskUpdateNameView(generics.RetrieveUpdateDestroyAPIView):
+class TaskUpdateView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         uid = self.request.user.id
         tid = self.kwargs['tid']
@@ -76,33 +76,7 @@ class TaskUpdateNameView(generics.RetrieveUpdateDestroyAPIView):
             str_date=Cast('date', TextField())
         ).first()
 
-    serializer_class = TaskUpdateNameSerializer
-    permission_classes = [IsAuthenticated]
-    http_method_names = ['get', 'put', 'patch']
-
-
-class TaskUpdateDateView(generics.RetrieveUpdateDestroyAPIView):
-    def get_object(self):
-        uid = self.request.user.id
-        tid = self.kwargs['tid']
-        return Task.objects.filter(created_by_id=uid, id=tid).annotate(
-            str_date=Cast('date', TextField())
-        ).first()
-
-    serializer_class = TaskUpdateDateSerializer
-    permission_classes = [IsAuthenticated]
-    http_method_names = ['get', 'put', 'patch']
-
-
-class TaskUpdateTimeView(generics.RetrieveUpdateDestroyAPIView):
-    def get_object(self):
-        uid = self.request.user.id
-        tid = self.kwargs['tid']
-        return Task.objects.filter(created_by_id=uid, id=tid).annotate(
-            str_date=Cast('date', TextField())
-        ).first()
-
-    serializer_class = TaskUpdateTimeSerializer
+    serializer_class = TaskUpdateSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'patch']
 
