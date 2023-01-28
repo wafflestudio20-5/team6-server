@@ -1,12 +1,9 @@
 from django.urls import path
 
-<<<<<<< HEAD
 from task.views import TaskListCreateView, TaskListView, TaskDetailDestroyView, TaskUpdateNameView, TaskUpdateDateView, \
-    switch_complete, switch_tomorrow, TaskSearchListView, TaskSearchDateListView, TaskSearchDetailDestroyView
-=======
-from task.views import TaskListCreateView, TaskListView, TaskDetailDestroyView, TaskUpdateView,  \
-    switch_complete, switch_tomorrow  # , TagListCreateView, TagDetailUpdateDestroyView
->>>>>>> 0d8bd74337baaf4754327f2f3a883dd04627d39f
+    switch_complete, switch_tomorrow
+    
+from task.views import TaskSearchListView, TaskSearchDateListView, TaskSearchDetailDestroyView
 
 urlpatterns = [
     path('list/', TaskListView.as_view()),
