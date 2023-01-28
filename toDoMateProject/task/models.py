@@ -18,6 +18,8 @@ class Task(models.Model):
     name = models.CharField(max_length=50, blank=False, null=False)
     complete = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
     #tag = models.ForeignKey(Tag, on_delete=models.CASCADE, default=1)
 #commit
 

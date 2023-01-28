@@ -24,7 +24,9 @@ class TaskListCreateView(generics.ListCreateAPIView):
         uid = self.request.user.id
         date = self.kwargs['date']
         task = Task.objects.filter(created_by_id=uid, date=date).annotate(
-            str_date=Cast('date', TextField())
+            str_date=Cast('date', TextField()),
+            str_start_time=Cast('start_time', TextField()),
+            str_end_time=Cast('end_time', TextField())
         )
         return task
         #return Task.objects.filter(created_by_id=uid, repeated=0) | Task.objects.filter(created_by_id=uid, repeated=1)
@@ -45,7 +47,11 @@ class TaskListCreateView(generics.ListCreateAPIView):
 class TaskListView(generics.ListAPIView):
     def get_queryset(self):
         uid = self.request.user.id
-        queryset = Task.objects.filter(created_by_id=uid).annotate(str_date=Cast('date', TextField())).order_by('date')
+        queryset = Task.objects.filter(created_by_id=uid).annotate(
+            str_date=Cast('date', TextField()),
+            str_start_time=Cast('start_time', TextField()),
+            str_end_time=Cast('end_time', TextField())
+        ).order_by('date')
         return queryset
         #return Task.objects.filter(created_by_id=uid, date=date, repeated=0) | Task.objects.filter(created_by_id=uid, date=date, repeated=1)
 
@@ -57,7 +63,11 @@ class TaskDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         uid = self.request.user.id
         tid = self.kwargs['tid']
-        return Task.objects.filter(created_by_id=uid, id=tid).annotate(str_date=Cast('date', TextField())).first()
+        return Task.objects.filter(created_by_id=uid, id=tid).annotate(
+            str_date=Cast('date', TextField()),
+            str_start_time=Cast('start_time', TextField()),
+            str_end_time=Cast('end_time', TextField())
+        ).first()
         #return get_object_or_404(Task, created_by_id=uid, id=tid, repeated=0)
 
     serializer_class = TaskDetailDestroySerializer
@@ -69,7 +79,11 @@ class TaskUpdateNameView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         uid = self.request.user.id
         tid = self.kwargs['tid']
-        return Task.objects.filter(created_by_id=uid, id=tid).annotate(str_date=Cast('date', TextField())).first()
+        return Task.objects.filter(created_by_id=uid, id=tid).annotate(
+            str_date=Cast('date', TextField()),
+            str_start_time=Cast('start_time', TextField()),
+            str_end_time=Cast('end_time', TextField())
+        ).first()
 
     serializer_class = TaskUpdateNameSerializer
     permission_classes = [IsAuthenticated]
@@ -80,7 +94,11 @@ class TaskUpdateDateView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         uid = self.request.user.id
         tid = self.kwargs['tid']
-        return Task.objects.filter(created_by_id=uid, id=tid).annotate(str_date=Cast('date', TextField())).first()
+        return Task.objects.filter(created_by_id=uid, id=tid).annotate(
+            str_date=Cast('date', TextField()),
+            str_start_time=Cast('start_time', TextField()),
+            str_end_time=Cast('end_time', TextField())
+        ).first()
 
     serializer_class = TaskUpdateDateSerializer
     permission_classes = [IsAuthenticated]
