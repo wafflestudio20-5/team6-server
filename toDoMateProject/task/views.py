@@ -13,9 +13,8 @@ from rest_framework.decorators import api_view
 
 from task.permissions import IsOwnerOrReadOnly, is_following
 from task.models import Task#, Tag
-from task.serializers import TaskUpdateNameSerializer, TaskUpdateDateSerializer, \
+from task.serializers import TaskUpdateSerializer, \
     TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer
-
 
 # BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
 BASE_URL = "http://3.38.100.94"
@@ -48,7 +47,9 @@ class TaskListCreateView(generics.ListCreateAPIView):
 class TaskListView(generics.ListAPIView):
     def get_queryset(self):
         uid = self.request.user.id
-        queryset = Task.objects.filter(created_by_id=uid).annotate(str_date=Cast('date', TextField())).order_by('date')
+        queryset = Task.objects.filter(created_by_id=uid).annotate(
+            str_date=Cast('date', TextField())
+        ).order_by('date')
         return queryset
         #return Task.objects.filter(created_by_id=uid, date=date, repeated=0) | Task.objects.filter(created_by_id=uid, date=date, repeated=1)
 
@@ -60,7 +61,9 @@ class TaskDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         uid = self.request.user.id
         tid = self.kwargs['tid']
-        return Task.objects.filter(created_by_id=uid, id=tid).annotate(str_date=Cast('date', TextField())).first()
+        return Task.objects.filter(created_by_id=uid, id=tid).annotate(
+            str_date=Cast('date', TextField())
+        ).first()
         #return get_object_or_404(Task, created_by_id=uid, id=tid, repeated=0)
 
     serializer_class = TaskDetailDestroySerializer
@@ -68,26 +71,18 @@ class TaskDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
     http_method_names = ['get', 'delete']
 
 
-class TaskUpdateNameView(generics.RetrieveUpdateDestroyAPIView):
+class TaskUpdateView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         uid = self.request.user.id
         tid = self.kwargs['tid']
-        return Task.objects.filter(created_by_id=uid, id=tid).annotate(str_date=Cast('date', TextField())).first()
+        return Task.objects.filter(created_by_id=uid, id=tid).annotate(
+            str_date=Cast('date', TextField())
+        ).first()
 
-    serializer_class = TaskUpdateNameSerializer
+    serializer_class = TaskUpdateSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'patch']
 
-
-class TaskUpdateDateView(generics.RetrieveUpdateDestroyAPIView):
-    def get_object(self):
-        uid = self.request.user.id
-        tid = self.kwargs['tid']
-        return Task.objects.filter(created_by_id=uid, id=tid).annotate(str_date=Cast('date', TextField())).first()
-
-    serializer_class = TaskUpdateDateSerializer
-    permission_classes = [IsAuthenticated]
-    http_method_names = ['get', 'put', 'patch']
 
 @api_view(['GET'])
 def switch_complete(request, *args, **kwargs):
@@ -98,6 +93,7 @@ def switch_complete(request, *args, **kwargs):
     task.save()
     # return redirect(f"http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000/task/detail/{tid}") #실제 url
     return redirect(BASE_URL + f"/task/detail/{tid}") #실제 url
+
 
 @api_view(['GET'])
 def switch_tomorrow(request, *args, **kwargs):
