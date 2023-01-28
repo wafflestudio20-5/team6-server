@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import User
 from diary.models import Diary, Comment
-from diary.permissions import IsOwnerOrReadOnly
+from diary.permissions import IsOwnerOrReadOnly, is_following
 from diary.serializers import DiaryListSerializer, DiaryListCreateSerializer, DiaryRetrieveUpdateDeleteSerializer, \
     CommentListCreateSerializer, CommentRetrieveUpdateDestroySerializer
 
@@ -117,17 +117,18 @@ def get_user_by_email(email):
 
 class DiarySearchListView(generics.ListAPIView):
     def get_queryset(self):
-        if 'email' not in self.request.data:
-            content = {"There's no email data."}
-            return ["Email Not Found"]
-        uid = get_user_by_email(self.request.data['email']).id
-        return Diary.objects.filter(created_by_id=uid).annotate(str_date=Cast('date', TextField()))
-
+        uid = self.kwargs['uid']
+        if is_following(self.request, uid):
+            return Diary.objects.filter(created_by_id=uid).annotate(str_date=Cast('date', TextField()))
+        else:
+            return ['Error']
+    
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        if queryset == ['Email Not Found']:
-            content = {"detail" : "There's no email data."}
+        if queryset == ['Error']:
+            content = {"detail" : "No permission(folllow)."}
             return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+                
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -137,15 +138,12 @@ class DiarySearchListView(generics.ListAPIView):
         return Response(serializer.data)
 
     serializer_class = DiaryListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrReadOnly]
     
     
 @api_view(['GET'])
 def diary_search_redirect(request, *args, **kwargs):
-    if 'email' not in request.data:
-        content = {"detail" : "There's no email data."}
-        return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
-    uid = get_user_by_email(request.data['email']).id
+    uid = kwargs['uid']
     date = kwargs.get('date')
     diary = Diary.objects.filter(created_by_id=uid, date=date).first()
     if diary:

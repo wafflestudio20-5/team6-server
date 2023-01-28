@@ -13,6 +13,6 @@ urlpatterns = [
     path('comment/<did>/', CommentListCreateView.as_view()),
     path('comment/detail/<cid>/', CommentRetrieveUpdateDestroyView.as_view()),
     
-    path('search/', DiarySearchListView.as_view()),
-    path('search/<date>/', diary_search_redirect),
+    path('search/<uid>/', DiarySearchListView.as_view()),
+    path('search/<uid>/<date>/', diary_search_redirect),
 ]
