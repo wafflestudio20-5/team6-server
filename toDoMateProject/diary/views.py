@@ -96,7 +96,8 @@ class CommentListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         uid = self.request.user.id
         did = self.kwargs['did']
-        serializer.save(diary_id=did, created_by_id=uid)
+        nickname = User.objects.get(id=uid).nickname
+        serializer.save(diary_id=did, created_by_id=uid, nickname=nickname)
 
 
 class CommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
