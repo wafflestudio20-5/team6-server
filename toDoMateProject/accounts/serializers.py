@@ -1,7 +1,11 @@
+from allauth.account import app_settings as allauth_settings
 from allauth.account.models import EmailAddress
+from allauth.account.adapter import get_adapter
+from allauth.utils import email_address_exists
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import SetPasswordForm
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 import datetime
 from rest_framework import serializers
 from dj_rest_auth.serializers import LoginSerializer
@@ -11,6 +15,20 @@ from .models import User, Code
 
 class CustomRegisterSerializer(RegisterSerializer):
     username = None
+
+    def validate_email(self, email):
+        email = get_adapter().clean_email(email)
+        if allauth_settings.UNIQUE_EMAIL:
+            if email and email_address_exists(email):
+                if EmailAddress.objects.get(email=email).verified:
+                    raise serializers.ValidationError(
+                        _('A user is already registered with this e-mail address.'),
+                    )
+                raise serializers.ValidationError(
+                    _('This e-mail address needs to be verified. Please resend the verification email.')
+                )
+        return email
+    
     def get_cleaned_data(self):
         return {
             'password1': self.validated_data.get('password1', ''),
