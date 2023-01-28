@@ -25,10 +25,10 @@ class CustomRegisterSerializer(RegisterSerializer):
                         _('A user is already registered with this e-mail address.'),
                     )
                 raise serializers.ValidationError(
-                    _('This e-mail address needs to be verified. Please resend the verification email.')
+                    _('This e-mail address has attempted registration but failed. Please resend the verification email.')
                 )
         return email
-    
+
     def get_cleaned_data(self):
         return {
             'password1': self.validated_data.get('password1', ''),
