@@ -14,6 +14,9 @@ from task.serializers import TaskUpdateNameSerializer, TaskUpdateDateSerializer,
     TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer
 
 
+# BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
+BASE_URL = "http://3.38.100.94"
+
 # Create your views here.
 class TaskListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
@@ -91,7 +94,7 @@ def switch_complete(request, *args, **kwargs):
     task.complete = not task.complete
     task.save()
     # return redirect(f"http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000/task/detail/{tid}") #실제 url
-    return redirect(f"http://3.38.100.94/task/detail/{tid}") #실제 url
+    return redirect(BASE_URL + f"/task/detail/{tid}") #실제 url
 
 @api_view(['GET'])
 def switch_tomorrow(request, *args, **kwargs):
@@ -101,7 +104,7 @@ def switch_tomorrow(request, *args, **kwargs):
     task.date = task.date + datetime.timedelta(days=1)
     task.save()
     # return redirect(f"http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000/task/detail/{tid}") #실제 url
-    return redirect(f"http://3.38.100.94/task/detail/{tid}")  # 실제 url
+    return redirect(BASE_URL + f"/task/detail/{tid}")  # 실제 url
 
 
 # class TaskViewListView(generics.ListAPIView):

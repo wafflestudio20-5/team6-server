@@ -11,6 +11,14 @@ from diary.permissions import IsOwnerOrReadOnly
 from diary.serializers import DiaryListSerializer, DiaryListCreateSerializer, DiaryRetrieveUpdateDeleteSerializer, \
     CommentListCreateSerializer, CommentRetrieveUpdateDestroySerializer
 
+from accounts.models import User
+from accounts.serializers import UserDetailSerializer
+from rest_framework.response import Response
+from django.http import Http404, HttpResponseBadRequest, HttpResponseNotFound
+import json
+
+# BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
+BASE_URL = "http://3.38.100.94"
 
 # Create your views here.
 class DiaryListView(generics.ListAPIView):
@@ -56,9 +64,9 @@ def diary_redirect(request, *args, **kwargs):
     diary = Diary.objects.filter(created_by_id=uid, date=date).first()
 
     if diary:
-        return redirect(f"http://3.38.100.94/diary/mydiary/{date}/update")
+        return redirect(BASE_URL + f"/diary/mydiary/{date}/update")
     else:
-        return redirect(f"http://3.38.100.94/diary/mydiary/{date}/create")
+        return redirect(BASE_URL + f"/diary/mydiary/{date}/create")
 
 
 class DiaryWatchView(generics.RetrieveUpdateDestroyAPIView):
@@ -70,6 +78,7 @@ class DiaryWatchView(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = DiaryRetrieveUpdateDeleteSerializer
     permission_classes = [IsOwnerOrReadOnly]
+    # permission_classes = [IsAuthenticated]
     lookup_field = 'did'
 
 
@@ -99,3 +108,68 @@ class CommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     serializer_class = CommentRetrieveUpdateDestroySerializer
     permission_classes = [IsOwnerOrReadOnly]
+    
+
+def get_user_by_email(email):
+    selected_user = get_object_or_404(User, email=email)
+    return selected_user
+
+
+class DiarySearchListView(generics.ListAPIView):
+    def get_queryset(self):
+        if 'email' not in self.request.data:
+            content = {"There's no email data."}
+            return ["Email Not Found"]
+        uid = get_user_by_email(self.request.data['email']).id
+        return Diary.objects.filter(created_by_id=uid).annotate(str_date=Cast('date', TextField()))
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        if queryset == ['Email Not Found']:
+            content = {"detail" : "There's no email data."}
+            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    serializer_class = DiaryListSerializer
+    permission_classes = [IsAuthenticated]
+    
+    
+@api_view(['GET'])
+def diary_search_redirect(request, *args, **kwargs):
+    if 'email' not in request.data:
+        content = {"detail" : "There's no email data."}
+        return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+    uid = get_user_by_email(request.data['email']).id
+    date = kwargs.get('date')
+    diary = Diary.objects.filter(created_by_id=uid, date=date).first()
+    if diary:
+        return redirect(BASE_URL + f"/diary/watch/{diary.id}/")
+    else:
+        content = {"detail" : f"No diary at {date}."}
+        return HttpResponseNotFound(json.dumps(content), content_type='application/json')
+
+
+class SearchUserDetailView(generics.RetrieveAPIView):
+    def get_object(self):
+        if 'email' not in self.request.data:
+            content = {"There's no email data."}
+            return "Email Not Found"
+        user = get_user_by_email(self.request.data['email'])
+        return user
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance == "Email Not Found":
+            content = {"detail" : "There's no email data."}
+            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    serializer_class = UserDetailSerializer
+    permission_classes = [IsAuthenticated]

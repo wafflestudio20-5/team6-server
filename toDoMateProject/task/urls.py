@@ -10,7 +10,8 @@ urlpatterns = [
     path('detail/<int:tid>/name/', TaskUpdateNameView.as_view()),
     path('detail/<int:tid>/date/', TaskUpdateDateView.as_view()),
     path('detail/<int:tid>/check/', switch_complete),
-    path('detail/<int:tid>/delay/', switch_tomorrow),]
+    path('detail/<int:tid>/delay/', switch_tomorrow),
+]
 
     #path('list/repeated', TaskListCreateView.as_view()),
     #path('task/repeated/')

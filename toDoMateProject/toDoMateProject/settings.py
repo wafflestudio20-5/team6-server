@@ -20,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 with open(os.path.join("/home/ec2-user/secret_files", "secrets.json")) as f:
     secrets = json.loads(f.read())
 
+
 def get_secrets(setting, secrets=secrets):
     try:
         return secrets[setting]
@@ -63,6 +64,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'task.apps.TaskConfig',
     'diary.apps.DiaryConfig',
+    'follow.apps.FollowConfig'
 ]
 
 AUTHENTICATION_BACKENDS = [
