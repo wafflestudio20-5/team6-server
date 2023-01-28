@@ -23,9 +23,7 @@ class TaskListCreateView(generics.ListCreateAPIView):
         uid = self.request.user.id
         date = self.kwargs['date']
         task = Task.objects.filter(created_by_id=uid, date=date).annotate(
-            str_date=Cast('date', TextField()),
-            str_start_time=Cast('start_time', TextField()),
-            str_end_time=Cast('end_time', TextField())
+            str_date=Cast('date', TextField())
         )
         return task
         #return Task.objects.filter(created_by_id=uid, repeated=0) | Task.objects.filter(created_by_id=uid, repeated=1)
@@ -47,9 +45,7 @@ class TaskListView(generics.ListAPIView):
     def get_queryset(self):
         uid = self.request.user.id
         queryset = Task.objects.filter(created_by_id=uid).annotate(
-            str_date=Cast('date', TextField()),
-            str_start_time=Cast('start_time', TextField()),
-            str_end_time=Cast('end_time', TextField())
+            str_date=Cast('date', TextField())
         ).order_by('date')
         return queryset
         #return Task.objects.filter(created_by_id=uid, date=date, repeated=0) | Task.objects.filter(created_by_id=uid, date=date, repeated=1)
@@ -63,9 +59,7 @@ class TaskDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
         uid = self.request.user.id
         tid = self.kwargs['tid']
         return Task.objects.filter(created_by_id=uid, id=tid).annotate(
-            str_date=Cast('date', TextField()),
-            str_start_time=Cast('start_time', TextField()),
-            str_end_time=Cast('end_time', TextField())
+            str_date=Cast('date', TextField())
         ).first()
         #return get_object_or_404(Task, created_by_id=uid, id=tid, repeated=0)
 
@@ -79,9 +73,7 @@ class TaskUpdateNameView(generics.RetrieveUpdateDestroyAPIView):
         uid = self.request.user.id
         tid = self.kwargs['tid']
         return Task.objects.filter(created_by_id=uid, id=tid).annotate(
-            str_date=Cast('date', TextField()),
-            str_start_time=Cast('start_time', TextField()),
-            str_end_time=Cast('end_time', TextField())
+            str_date=Cast('date', TextField())
         ).first()
 
     serializer_class = TaskUpdateNameSerializer
@@ -94,9 +86,7 @@ class TaskUpdateDateView(generics.RetrieveUpdateDestroyAPIView):
         uid = self.request.user.id
         tid = self.kwargs['tid']
         return Task.objects.filter(created_by_id=uid, id=tid).annotate(
-            str_date=Cast('date', TextField()),
-            str_start_time=Cast('start_time', TextField()),
-            str_end_time=Cast('end_time', TextField())
+            str_date=Cast('date', TextField())
         ).first()
 
     serializer_class = TaskUpdateDateSerializer
@@ -109,9 +99,7 @@ class TaskUpdateTimeView(generics.RetrieveUpdateDestroyAPIView):
         uid = self.request.user.id
         tid = self.kwargs['tid']
         return Task.objects.filter(created_by_id=uid, id=tid).annotate(
-            str_date=Cast('date', TextField()),
-            str_start_time=Cast('start_time', TextField()),
-            str_end_time=Cast('end_time', TextField())
+            str_date=Cast('date', TextField())
         ).first()
 
     serializer_class = TaskUpdateTimeSerializer
@@ -128,6 +116,7 @@ def switch_complete(request, *args, **kwargs):
     task.save()
     # return redirect(f"http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000/task/detail/{tid}") #실제 url
     return redirect(BASE_URL + f"/task/detail/{tid}") #실제 url
+
 
 @api_view(['GET'])
 def switch_tomorrow(request, *args, **kwargs):
