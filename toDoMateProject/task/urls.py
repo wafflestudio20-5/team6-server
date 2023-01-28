@@ -1,7 +1,7 @@
 from django.urls import path
 
 from task.views import TaskListCreateView, TaskListView, TaskDetailDestroyView, TaskUpdateNameView, TaskUpdateDateView, \
-    switch_complete, switch_tomorrow, TaskSearchListView, task_search_redirect
+    switch_complete, switch_tomorrow, TaskSearchListView, TaskSearchDateListView, TaskSearchDetailDestroyView
 
 urlpatterns = [
     path('list/', TaskListView.as_view()),
@@ -12,8 +12,9 @@ urlpatterns = [
     path('detail/<int:tid>/check/', switch_complete),
     path('detail/<int:tid>/delay/', switch_tomorrow),
     
-    path('search/<uid>/', TaskSearchListView.as_view()),
-    path('search/<uid>/<date>/', task_search_redirect),
+    path('search/<uid>/list/', TaskSearchListView.as_view()),
+    path('search/<uid>/list/<date>/', TaskSearchDateListView.as_view()),
+    path('search/<uid>/detail/<tid>/', TaskSearchDetailDestroyView.as_view()),
 ]
 
     #path('list/repeated', TaskListCreateView.as_view()),

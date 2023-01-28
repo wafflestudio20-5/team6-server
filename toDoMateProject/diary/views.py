@@ -141,18 +141,39 @@ class DiarySearchListView(generics.ListAPIView):
     permission_classes = [IsOwnerOrReadOnly]
     
     
-@api_view(['GET'])
-def diary_search_redirect(request, *args, **kwargs):
-    uid = kwargs['uid']
-    date = kwargs.get('date')
-    diary = Diary.objects.filter(created_by_id=uid, date=date).first()
-    if diary:
-        return redirect(BASE_URL + f"/diary/watch/{diary.id}/")
-    else:
-        content = {"detail" : f"No diary at {date}."}
-        return HttpResponseNotFound(json.dumps(content), content_type='application/json')
+class DiarySearchDateListView(generics.ListAPIView):
+    def get_queryset(self):
+        uid = self.kwargs['uid']
+        date = self.kwargs['date']
+        if is_following(self.request, uid):
+            queryset = Diary.objects.filter(created_by_id=uid, date=date).annotate(str_date=Cast('date', TextField()))
+            return queryset if queryset else ['Empty queryset']
+        else:
+            return ['Error']
+        
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        if queryset == ['Error']:
+            content = {"detail" : "No permission(folllow)."}
+            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        
+        if queryset == ['Empty queryset']:
+            date = self.kwargs['date']
+            content = {"detail" : f"No task found({date})."}
+            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    serializer_class = DiaryListSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+  
+  
 class SearchUserDetailView(generics.RetrieveAPIView):
     def get_object(self):
         if 'email' not in self.request.data:
