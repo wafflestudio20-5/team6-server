@@ -11,8 +11,7 @@ from rest_framework.decorators import api_view
 
 from task.models import Task#, Tag
 from task.serializers import TaskUpdateNameSerializer, TaskUpdateDateSerializer, \
-    TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer
-
+    TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer, TaskUpdateTimeSerializer
 
 # BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
 BASE_URL = "http://3.38.100.94"
@@ -103,6 +102,22 @@ class TaskUpdateDateView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = TaskUpdateDateSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'patch']
+
+
+class TaskUpdateTimeView(generics.RetrieveUpdateDestroyAPIView):
+    def get_object(self):
+        uid = self.request.user.id
+        tid = self.kwargs['tid']
+        return Task.objects.filter(created_by_id=uid, id=tid).annotate(
+            str_date=Cast('date', TextField()),
+            str_start_time=Cast('start_time', TextField()),
+            str_end_time=Cast('end_time', TextField())
+        ).first()
+
+    serializer_class = TaskUpdateTimeSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'put', 'patch']
+
 
 @api_view(['GET'])
 def switch_complete(request, *args, **kwargs):

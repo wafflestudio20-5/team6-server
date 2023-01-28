@@ -29,6 +29,8 @@ class TaskUpdateNameSerializer(serializers.ModelSerializer):
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
     complete = serializers.PrimaryKeyRelatedField(read_only=True)
     date = serializers.PrimaryKeyRelatedField(read_only=True)
+    start_time = serializers.PrimaryKeyRelatedField(read_only=True)
+    end_time = serializers.PrimaryKeyRelatedField(read_only=True)
     #tag = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
@@ -39,6 +41,19 @@ class TaskUpdateNameSerializer(serializers.ModelSerializer):
 class TaskUpdateDateSerializer(serializers.ModelSerializer):
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
     complete = serializers.PrimaryKeyRelatedField(read_only=True)
+    name = serializers.PrimaryKeyRelatedField(read_only=True)
+    start_time = serializers.PrimaryKeyRelatedField(read_only=True)
+    end_time = serializers.PrimaryKeyRelatedField(read_only=True)
+    #tag = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Task
+        fields = ['id', 'date', 'name', 'complete', 'created_by', 'start_time', 'end_time']
+
+class TaskUpdateTimeSerializer(serializers.ModelSerializer):
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    complete = serializers.PrimaryKeyRelatedField(read_only=True)
+    date = serializers.PrimaryKeyRelatedField(read_only=True)
     name = serializers.PrimaryKeyRelatedField(read_only=True)
     #tag = serializers.PrimaryKeyRelatedField(read_only=True)
 
