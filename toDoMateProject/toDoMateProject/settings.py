@@ -127,8 +127,7 @@ SOCIALACCOUNT_PROVIDERS = {
             'key': ''
         },
         'SCOPE': [
-            'profile',
-            'email',
+            'email'
         ],
         'AUTH_PARAMS': {
             'access_type': 'online',
