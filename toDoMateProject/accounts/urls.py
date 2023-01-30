@@ -13,7 +13,6 @@ urlpatterns = [
     path('resend-email/', CustomResendEmailVerificationView.as_view(), name="rest_resend_email"),
     # Password
     path('password/reset/', PasswordResetView.as_view(), name='password_reset'),
-    path('password/reset/confirm/<uid>/<token>', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('password/reset/confirm/', PasswordResetConfirmView.as_view()),
     # Login/logout
     path('login/', LoginView.as_view(), name='login'),
