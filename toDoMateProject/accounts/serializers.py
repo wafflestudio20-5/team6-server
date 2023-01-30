@@ -1,11 +1,14 @@
-from allauth.account.models import EmailAddress
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import SetPasswordForm
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 import datetime
 from rest_framework import serializers
 from dj_rest_auth.serializers import LoginSerializer
-from dj_rest_auth.registration.serializers import RegisterSerializer
+from dj_rest_auth.registration.serializers import RegisterSerializer, SocialLoginSerializer
+from google.oauth2 import id_token
+from google.auth.transport import requests
 from .models import User, Code
 
 
@@ -43,6 +46,50 @@ class CustomLoginSerializer(LoginSerializer):
         attrs["user"] = user
 
         return attrs
+
+
+class GoogleLoginSerializer(SocialLoginSerializer):
+    def validate(self, attrs):
+        view = self.context.get('view')
+        request = self._get_request()
+
+        if not view:
+            raise serializers.ValidationError(
+                _('View is not defined, pass it as a context variable'),
+            )
+
+        adapter_class = getattr(view, 'adapter_class', None)
+        if not adapter_class:
+            raise serializers.ValidationError(_('Define adapter_class in view'))
+
+        adapter = adapter_class(request)
+        app = adapter.get_provider().get_app(request)
+
+        # More info on code vs access_token
+        # http://stackoverflow.com/questions/8666316/facebook-oauth-2-0-code-and-token
+
+        try:
+            id_token = attrs['id_token']
+        except KeyError:
+            raise serializers.ValidationError(
+                _('Incorrect input. id_token is required.'),
+            )
+
+        CLIENT_ID = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
+        idinfo = id_token.verify_oauth2_token(id_token, requests.Request(), CLIENT_ID)
+        uid = idinfo['sub']
+        email = idinfo['email']
+        email_verified = idinfo['email_verified']
+        if not email_verified:
+            raise serializers.ValidationError(
+                _('Email is not verified.')
+            )
+
+        return attrs
+
+    def create(self, validated_data):
+        id_token = validated_data.get('id_token')
+
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):

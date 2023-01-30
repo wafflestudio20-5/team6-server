@@ -2,6 +2,7 @@
 
 
 from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialAccount
 from dj_rest_auth.serializers import PasswordResetSerializer
 from dj_rest_auth.views import UserDetailsView, sensitive_post_parameters_m
 import datetime
@@ -12,10 +13,12 @@ from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
+from google.oauth2 import id_token
+from google.auth.transport import requests
 from .models import User, Code
 from .permissions import IsCreator, IsCreatorOrReadOnly
 from .serializers import UserDetailSerializer, CustomUserDetailSerializer, UserImageSerializer, \
-    CustomRegisterSerializer, CodeSerializer, PasswordResetConfirmSerializer
+    CustomRegisterSerializer, CodeSerializer, PasswordResetConfirmSerializer, GoogleLoginSerializer
 
 # Social Login
 from dj_rest_auth.registration.views import SocialLoginView, SocialConnectView, ResendEmailVerificationView
@@ -121,9 +124,12 @@ class CustomUserDetailsView(UserDetailsView):
 
 
 # Social login
-class GoogleLogin(SocialLoginView): # if you want to use Authorization Code Grant, use this
-    adapter_class = GoogleOAuth2Adapter
-    client_class = OAuth2Client
+class GoogleLogin(CreateAPIView): # if you want to use Authorization Code Grant, use this
+    queryset = SocialAccount.objects.all()
+    serializer_class = GoogleLoginSerializer
+
+
+
 
 
 class GoogleConnect(SocialConnectView):

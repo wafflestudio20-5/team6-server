@@ -17,8 +17,15 @@ pymysql.install_as_MySQLdb()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-with open(os.path.join("/home/ec2-user/secret_files", "secrets.json")) as f:
-    secrets = json.loads(f.read())
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+if DEBUG:
+    with open(os.path.join(BASE_DIR, "secrets.json")) as f:
+        secrets = json.loads(f.read())
+else:
+    with open(os.path.join("/home/ec2-user/secret_files", "secrets.json")) as f:
+        secrets = json.loads(f.read())
 
 
 def get_secrets(setting, secrets=secrets):
@@ -32,9 +39,6 @@ def get_secrets(setting, secrets=secrets):
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_secrets('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = get_secrets('ALLOWED_HOSTS')
 
