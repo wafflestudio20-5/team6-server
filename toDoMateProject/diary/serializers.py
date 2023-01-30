@@ -34,10 +34,11 @@ class CommentListCreateSerializer(serializers.ModelSerializer):
     created_at = serializers.PrimaryKeyRelatedField(read_only=True)
     updated_at = serializers.PrimaryKeyRelatedField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    nickname = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'context', 'diary', 'created_at', 'updated_at', 'created_by']
+        fields = ['id', 'context', 'diary', 'created_at', 'updated_at', 'created_by', 'nickname']
 
 
 class CommentRetrieveUpdateDestroySerializer(serializers.ModelSerializer):
@@ -45,7 +46,8 @@ class CommentRetrieveUpdateDestroySerializer(serializers.ModelSerializer):
     created_at = serializers.PrimaryKeyRelatedField(read_only=True)
     updated_at = serializers.PrimaryKeyRelatedField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    nickname = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'context', 'diary', 'created_at', 'updated_at', 'created_by']
+        fields = ['id', 'context', 'diary', 'created_at', 'updated_at', 'created_by', 'nickname']

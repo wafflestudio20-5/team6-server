@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from follow.models import Follow
 from accounts.models import User
 

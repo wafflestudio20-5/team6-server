@@ -14,10 +14,8 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             uid = request.user.id
             # 팔로우 하고 있는 사람의 diary는 볼 수 있음.
-            followers = [obj.to_user.id for obj in Follow.objects.filter(from_user=uid)]      
-            print("=======================")
-            print(followers)           
-            print("=======================")      
+            followers = [obj.to_user.id for obj in Follow.objects.filter(from_user=uid)] 
+
             if obj.created_by_id in followers:
                 return True
             else:

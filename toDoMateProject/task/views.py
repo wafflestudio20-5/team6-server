@@ -1,18 +1,20 @@
 import datetime
+import json
 
 from django.db.models import TextField
+from django.http import HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from django.db.models.functions import Cast
 from rest_framework.decorators import api_view
 
-
+from task.permissions import IsOwnerOrReadOnly, is_following
 from task.models import Task#, Tag
-from task.serializers import TaskUpdateNameSerializer, TaskUpdateDateSerializer, \
+from task.serializers import TaskUpdateSerializer, \
     TaskDetailDestroySerializer, TaskListCreateSerializer, TaskListSerializer
-
 
 # BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
 BASE_URL = "http://3.38.100.94"
@@ -45,46 +47,42 @@ class TaskListCreateView(generics.ListCreateAPIView):
 class TaskListView(generics.ListAPIView):
     def get_queryset(self):
         uid = self.request.user.id
-        queryset = Task.objects.filter(created_by_id=uid).annotate(str_date=Cast('date', TextField())).order_by('date')
+        queryset = Task.objects.filter(created_by_id=uid).annotate(
+            str_date=Cast('date', TextField())
+        ).order_by('date')
         return queryset
         #return Task.objects.filter(created_by_id=uid, date=date, repeated=0) | Task.objects.filter(created_by_id=uid, date=date, repeated=1)
 
     serializer_class = TaskListSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsOwnerOrReadOnly]
 
 
 class TaskDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         uid = self.request.user.id
         tid = self.kwargs['tid']
-        return Task.objects.filter(created_by_id=uid, id=tid).annotate(str_date=Cast('date', TextField())).first()
+        return Task.objects.filter(created_by_id=uid, id=tid).annotate(
+            str_date=Cast('date', TextField())
+        ).first()
         #return get_object_or_404(Task, created_by_id=uid, id=tid, repeated=0)
 
     serializer_class = TaskDetailDestroySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | IsOwnerOrReadOnly]
     http_method_names = ['get', 'delete']
 
 
-class TaskUpdateNameView(generics.RetrieveUpdateDestroyAPIView):
+class TaskUpdateView(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         uid = self.request.user.id
         tid = self.kwargs['tid']
-        return Task.objects.filter(created_by_id=uid, id=tid).annotate(str_date=Cast('date', TextField())).first()
+        return Task.objects.filter(created_by_id=uid, id=tid).annotate(
+            str_date=Cast('date', TextField())
+        ).first()
 
-    serializer_class = TaskUpdateNameSerializer
+    serializer_class = TaskUpdateSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'patch']
 
-
-class TaskUpdateDateView(generics.RetrieveUpdateDestroyAPIView):
-    def get_object(self):
-        uid = self.request.user.id
-        tid = self.kwargs['tid']
-        return Task.objects.filter(created_by_id=uid, id=tid).annotate(str_date=Cast('date', TextField())).first()
-
-    serializer_class = TaskUpdateDateSerializer
-    permission_classes = [IsAuthenticated]
-    http_method_names = ['get', 'put', 'patch']
 
 @api_view(['GET'])
 def switch_complete(request, *args, **kwargs):
@@ -95,6 +93,7 @@ def switch_complete(request, *args, **kwargs):
     task.save()
     # return redirect(f"http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000/task/detail/{tid}") #실제 url
     return redirect(BASE_URL + f"/task/detail/{tid}") #실제 url
+
 
 @api_view(['GET'])
 def switch_tomorrow(request, *args, **kwargs):
@@ -149,3 +148,88 @@ def switch_tomorrow(request, *args, **kwargs):
 #         return Repeat.objects.filter(created_by_id=uid)
 #
 #     serializer_class = RepeatListCreateSerializer
+
+
+class TaskSearchListView(generics.ListAPIView):
+    def get_queryset(self):
+        uid = self.kwargs['uid']
+        if is_following(self.request, uid):
+            return Task.objects.filter(created_by_id=uid).annotate(str_date=Cast('date', TextField()))
+        else:
+            return ['Error']
+        
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        if queryset == ['Error']:
+            content = {"detail" : "No permission(folllow)."}
+            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    serializer_class = TaskListSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    
+    
+class TaskSearchDateListView(generics.ListAPIView):
+    def get_queryset(self):
+        uid = self.kwargs['uid']
+        date = self.kwargs['date']
+        if is_following(self.request, uid):
+            queryset = Task.objects.filter(created_by_id=uid, date=date).annotate(str_date=Cast('date', TextField()))
+            return queryset if queryset else ['Empty queryset']
+        else:
+            return ['Error']
+        
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        if queryset == ['Error']:
+            content = {"detail" : "No permission(folllow)."}
+            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        
+        if queryset == ['Empty queryset']:
+            date = self.kwargs['date']
+            content = {"detail" : f"No task found({date})."}
+            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    serializer_class = TaskListSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+
+
+class TaskSearchDetailDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    def get_object(self):
+        uid = self.kwargs['uid']
+        tid = self.kwargs['tid']
+        if is_following(self.request, uid):
+            return Task.objects.filter(created_by_id=uid, id=tid).annotate(str_date=Cast('date', TextField())).first()    
+        else:
+            return "Error"
+        
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance == 'Error':
+            content = {"detail" : "No permission(folllow)."}
+            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+
+        if instance == None:
+            content = {"detail" : "Invalid task id."}
+            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+        
+    serializer_class = TaskDetailDestroySerializer
+    permission_classes = [IsAuthenticated | IsOwnerOrReadOnly]
+    http_method_names = ['get']       

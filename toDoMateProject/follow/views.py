@@ -1,18 +1,20 @@
-from django.shortcuts import render
 import json
-from accounts.models import User
-from follow.models import Follow
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import render
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework import generics
-from accounts.serializers import UserDetailSerializer
-from follow.serializers import FollowerSerializer, FolloweeSerializer
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
 from rest_framework import status
 
-# Create your views here.
 
+
+from accounts.models import User
+from accounts.serializers import UserDetailSerializer
+from follow.models import Follow
+from follow.serializers import FollowerSerializer, FolloweeSerializer
 from django.shortcuts import redirect, get_object_or_404
 
 # BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
