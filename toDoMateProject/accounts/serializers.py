@@ -1,6 +1,6 @@
 from allauth.account import app_settings as allauth_settings
-from allauth.account.models import EmailAddress
 from allauth.account.adapter import get_adapter
+from allauth.account.models import EmailAddress
 from allauth.utils import email_address_exists
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import SetPasswordForm
