@@ -17,9 +17,10 @@ pymysql.install_as_MySQLdb()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-with open(os.path.join("/home/ec2-user/secret_files", "secrets.json")) as f:
+# with open(os.path.join("/home/ec2-user/secret_files", "secrets.json")) as f:
+#     secrets = json.loads(f.read())
+with open(os.path.join(BASE_DIR, "secrets.json")) as f:
     secrets = json.loads(f.read())
-
 
 def get_secrets(setting, secrets=secrets):
     try:
