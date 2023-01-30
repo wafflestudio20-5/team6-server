@@ -18,3 +18,4 @@ class Comment(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
+    nickname = models.CharField(max_length=50, blank=True)

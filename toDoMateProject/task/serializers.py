@@ -6,7 +6,7 @@ from task.models import Task#, Tag
 class TaskListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'date', 'name', 'complete', 'created_by']
+        fields = ['id', 'date', 'name', 'complete', 'created_by', 'start_time', 'end_time']
 
 
 class TaskListCreateSerializer(serializers.ModelSerializer):
@@ -16,35 +16,23 @@ class TaskListCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['id', 'date', 'name', 'complete', 'created_by']
+        fields = ['id', 'date', 'name', 'complete', 'created_by', 'start_time', 'end_time']
 
 #commit
 class TaskDetailDestroySerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'date', 'name', 'complete', 'created_by']
+        fields = ['id', 'date', 'name', 'complete', 'created_by', 'start_time', 'end_time']
 
 
-class TaskUpdateNameSerializer(serializers.ModelSerializer):
+class TaskUpdateSerializer(serializers.ModelSerializer):
     created_by = serializers.PrimaryKeyRelatedField(read_only=True)
     complete = serializers.PrimaryKeyRelatedField(read_only=True)
-    date = serializers.PrimaryKeyRelatedField(read_only=True)
     #tag = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Task
-        fields = ['id', 'date', 'name', 'complete', 'created_by']
-
-
-class TaskUpdateDateSerializer(serializers.ModelSerializer):
-    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
-    complete = serializers.PrimaryKeyRelatedField(read_only=True)
-    name = serializers.PrimaryKeyRelatedField(read_only=True)
-    #tag = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    class Meta:
-        model = Task
-        fields = ['id', 'date', 'name', 'complete', 'created_by']
+        fields = ['id', 'date', 'name', 'complete', 'created_by', 'start_time', 'end_time']
 #
 #
 # class TagListCreateSerializer(serializers.ModelSerializer):
