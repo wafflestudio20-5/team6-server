@@ -78,6 +78,19 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     user = None
     set_password_form = None
 
+    def validate_email(self, email):
+        email = get_adapter().clean_email(email)
+        if allauth_settings.UNIQUE_EMAIL:
+            if not email:
+                raise serializers.ValidationError(
+                    _('This field is required.')
+                )
+            if not email_address_exists(email):
+                raise serializers.ValidationError(
+                    _('A user is not registered.')
+                )
+        return email
+
     def validate(self, attrs):
         code = attrs.get("code")
         email = attrs.get("email")
