@@ -1,7 +1,11 @@
+from allauth.account import app_settings as allauth_settings
+from allauth.account.adapter import get_adapter
 from allauth.account.models import EmailAddress
+from allauth.utils import email_address_exists
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import SetPasswordForm
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 import datetime
 from rest_framework import serializers
 from dj_rest_auth.serializers import LoginSerializer
@@ -36,7 +40,7 @@ class CustomRegisterSerializer(RegisterSerializer):
                     _('This e-mail address has attempted registration but failed. Please resend the verification email.')
                 )
         return email
-    
+
     def get_cleaned_data(self):
         return {
             'password1': self.validated_data.get('password1', ''),
@@ -85,6 +89,19 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     _errors = {}
     user = None
     set_password_form = None
+
+    def validate_email(self, email):
+        email = get_adapter().clean_email(email)
+        if allauth_settings.UNIQUE_EMAIL:
+            if not email:
+                raise serializers.ValidationError(
+                    _('This field is required.')
+                )
+            if not email_address_exists(email):
+                raise serializers.ValidationError(
+                    _('A user is not registered.')
+                )
+        return email
 
     def validate(self, attrs):
         code = attrs.get("code")

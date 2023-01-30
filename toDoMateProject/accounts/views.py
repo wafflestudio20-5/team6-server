@@ -1,6 +1,4 @@
 # views.py
-
-
 from allauth.account.models import EmailAddress
 from dj_rest_auth.serializers import PasswordResetSerializer
 from dj_rest_auth.views import UserDetailsView, sensitive_post_parameters_m
@@ -63,7 +61,7 @@ class RegisterConfirmView(APIView):
         user = EmailAddress.objects.get(email=serializer.validated_data['email'])
         user.verified = True
         user.save()
-        return Response({'message':'The user account has been created successfully.'}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'The user account has been created successfully.'}, status=status.HTTP_201_CREATED)
 
 
 # Password reset
