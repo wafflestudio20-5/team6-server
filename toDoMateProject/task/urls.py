@@ -1,6 +1,6 @@
 from django.urls import path
 
-from task.views import TaskListCreateView, TaskListView, TaskDetailDestroyView, TaskUpdateNameView, TaskUpdateDateView, \
+from task.views import TaskListCreateView, TaskListView, TaskDetailDestroyView, TaskUpdateView, \
     switch_complete, switch_tomorrow
     
 from task.views import TaskSearchListView, TaskSearchDateListView, TaskSearchDetailDestroyView
