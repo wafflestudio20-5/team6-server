@@ -9,7 +9,7 @@ urlpatterns = [
     path('list/', TaskListView.as_view()),
     path('list/<date>/', TaskListCreateView.as_view()),
     path('detail/<int:tid>/', TaskDetailDestroyView.as_view()),
-    path('detail/<int:tid>/update', TaskUpdateView.as_view()),
+    path('detail/<int:tid>/update/', TaskUpdateView.as_view()),
     path('detail/<int:tid>/check/', switch_complete),
     path('detail/<int:tid>/delay/', switch_tomorrow),
     
