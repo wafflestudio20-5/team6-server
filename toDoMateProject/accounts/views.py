@@ -129,9 +129,6 @@ class GoogleLogin(CreateAPIView): # if you want to use Authorization Code Grant,
     serializer_class = GoogleLoginSerializer
 
 
-
-
-
 class GoogleConnect(SocialConnectView):
     adapter_class = GoogleOAuth2Adapter
     client_class = OAuth2Client

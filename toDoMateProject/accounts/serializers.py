@@ -1,3 +1,4 @@
+from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import SetPasswordForm
@@ -84,11 +85,24 @@ class GoogleLoginSerializer(SocialLoginSerializer):
             raise serializers.ValidationError(
                 _('Email is not verified.')
             )
+        if not email or not uid:
+            raise serializers.ValidationError(
+                _('Incorrect id_token.')
+            )
 
+
+        attrs = {**attrs, 'uid': uid, 'email': email}
         return attrs
 
     def create(self, validated_data):
-        id_token = validated_data.get('id_token')
+        uid = validated_data.get('uid')
+        email = validated_data.get('email')
+        extra_data = {'email': email}
+        SocialAccount(extra_data=extra_data, uid=uid, provider='google')
+
+
+
+
 
 
 
