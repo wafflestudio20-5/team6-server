@@ -7,7 +7,19 @@ from rest_framework import serializers
 from dj_rest_auth.serializers import LoginSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from .models import User, Code
-
+from accounts import adapter
+from allauth.account.adapter import get_adapter
+from allauth.account import app_settings as allauth_settings
+from allauth.utils import (email_address_exists,
+                            get_username_max_length)
+from allauth.account.adapter import get_adapter
+from allauth.account.utils import setup_user_email
+from allauth.socialaccount.helpers import complete_social_login
+from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.base import AuthProcess
+from django.http import HttpRequest
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth import get_user_model
 
 class CustomRegisterSerializer(RegisterSerializer):
     username = None

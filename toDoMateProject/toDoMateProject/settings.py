@@ -33,7 +33,7 @@ def get_secrets(setting, secrets=secrets):
 SECRET_KEY = get_secrets('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = True
+# DEBUG = True
 
 ALLOWED_HOSTS = get_secrets('ALLOWED_HOSTS')
 
