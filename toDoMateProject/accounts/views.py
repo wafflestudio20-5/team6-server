@@ -158,11 +158,11 @@ class UserImageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        image_name = 'media/' + f'{instance.id}' + '.jpg'
+        image_name = 'media/' + f'{instance.id}'
         s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
         try:
             image = s3.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=image_name)
-            return HttpResponse(image['Body'].read(), content_type='image/')
+            return HttpResponse(image['Body'].read(), content_type='image/jpeg')
         except ClientError as e:
             error_code = e.response["ResponseMetadata"]["HTTPStatusCode"]
             if error_code == 404:
@@ -182,7 +182,7 @@ class UserImageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         image_file = request.data.get('image')
         s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
         bucket = settings.AWS_STORAGE_BUCKET_NAME
-        image_name = 'media/' + f'{instance.id}' + '.jpg'
+        image_name = 'media/' + f'{instance.id}'
         try:
             s3.head_object(Bucket=bucket, Key=image_name)
             s3.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=image_name)
@@ -192,12 +192,13 @@ class UserImageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                 return Response(e, status=error_code)
 
         s3.upload_fileobj(image_file, settings.AWS_STORAGE_BUCKET_NAME, image_name)
-        return Response(status=status.HTTP_200_OK)
+        image = s3.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=image_name)
+        return HttpResponse(image['Body'].read(), content_type='image/jpeg')
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         bucket = settings.AWS_STORAGE_BUCKET_NAME
-        image_name = 'media/' + f'{instance.id}' + '.jpg'
+        image_name = 'media/' + f'{instance.id}'
         s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                           aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
 
