@@ -177,10 +177,11 @@ class DiarySearchDateListView(generics.ListAPIView):
   
 class SearchUserDetailView(generics.RetrieveAPIView):
     def get_object(self):
-        if 'email' not in self.request.data:
+        email = self.kwargs['email']
+        if not email:
             content = {"There's no email data."}
             return "Email Not Found"
-        user = get_user_by_email(self.request.data['email'])
+        user = get_user_by_email(email)
         return user
 
     def retrieve(self, request, *args, **kwargs):
