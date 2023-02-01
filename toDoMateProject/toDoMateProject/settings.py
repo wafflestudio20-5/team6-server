@@ -17,8 +17,16 @@ pymysql.install_as_MySQLdb()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-with open(os.path.join("/home/ec2-user/secret_files", "secrets.json")) as f:
-    secrets = json.loads(f.read())
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+if DEBUG:
+    with open(os.path.join(BASE_DIR, "secrets.json")) as f:
+        secrets = json.loads(f.read())
+else:
+    with open(os.path.join("/home/ec2-user/secret_files", "secrets.json")) as f:
+        secrets = json.loads(f.read())
+
 
 def get_secrets(setting, secrets=secrets):
     try:
@@ -31,9 +39,6 @@ def get_secrets(setting, secrets=secrets):
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_secrets('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
 
 ALLOWED_HOSTS = get_secrets('ALLOWED_HOSTS')
 
@@ -126,8 +131,7 @@ SOCIALACCOUNT_PROVIDERS = {
             'key': ''
         },
         'SCOPE': [
-            'profile',
-            'email',
+            'email'
         ],
         'AUTH_PARAMS': {
             'access_type': 'online',
@@ -177,8 +181,7 @@ ROOT_URLCONF = 'toDoMateProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -236,7 +239,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
-USE_S3 = get_secrets('USE_S3') == 'TRUE'
+USE_S3 = get_secrets('USE_S3')
 
 if USE_S3:
     # aws settings
@@ -249,7 +252,7 @@ if USE_S3:
     # s3 static settings
     STATIC_LOCATION = 'static'
     STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
-    STATICFILES_STORAGE = 'hello_django.storage_backends.StaticStorage'
+    STATICFILES_STORAGE = 'toDoMateProject.storage_backends.StaticStorage'
     # s3 public media settings
     PUBLIC_MEDIA_LOCATION = 'media'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'

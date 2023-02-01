@@ -1,10 +1,12 @@
 # views.py
-
-
+import boto3
+from botocore.exceptions import ClientError
 from allauth.account.models import EmailAddress
 from dj_rest_auth.serializers import PasswordResetSerializer
 from dj_rest_auth.views import UserDetailsView, sensitive_post_parameters_m
 import datetime
+from django.conf import settings
+from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework import generics, status
@@ -12,10 +14,12 @@ from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
+from rest_framework.parsers import MultiPartParser, FormParser
 from .models import User, Code
 from .permissions import IsCreator, IsCreatorOrReadOnly
 from .serializers import UserDetailSerializer, CustomUserDetailSerializer, UserImageSerializer, \
-    CustomRegisterSerializer, CodeSerializer, PasswordResetConfirmSerializer
+    CustomRegisterSerializer, CodeSerializer, PasswordResetConfirmSerializer, GoogleLoginSerializer, \
+    GoogleConnectSerializer
 
 # Social Login
 from dj_rest_auth.registration.views import SocialLoginView, SocialConnectView, ResendEmailVerificationView
@@ -63,7 +67,7 @@ class RegisterConfirmView(APIView):
         user = EmailAddress.objects.get(email=serializer.validated_data['email'])
         user.verified = True
         user.save()
-        return Response({'message':'The user account has been created successfully.'}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'The user account has been created successfully.'}, status=status.HTTP_201_CREATED)
 
 
 # Password reset
@@ -121,14 +125,14 @@ class CustomUserDetailsView(UserDetailsView):
 
 
 # Social login
-class GoogleLogin(SocialLoginView): # if you want to use Authorization Code Grant, use this
+class GoogleLogin(SocialLoginView):  # if you want to use Authorization Code Grant, use this
     adapter_class = GoogleOAuth2Adapter
-    client_class = OAuth2Client
+    serializer_class = GoogleLoginSerializer
 
 
 class GoogleConnect(SocialConnectView):
     adapter_class = GoogleOAuth2Adapter
-    client_class = OAuth2Client
+    serializer_class = GoogleConnectSerializer
 
 
 class KakaoLogin(SocialLoginView):
@@ -151,3 +155,61 @@ class UserImageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     permission_classes = [IsCreatorOrReadOnly | IsAdminUser]
     serializer_class = UserImageSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        image_name = 'media/' + f'{instance.id}'
+        s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+        try:
+            image = s3.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=image_name)
+            return HttpResponse(image['Body'].read(), content_type='image/jpeg')
+        except ClientError as e:
+            error_code = e.response["ResponseMetadata"]["HTTPStatusCode"]
+            if error_code == 404:
+                try:
+                    image = s3.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key='media/default.jpg')
+                    return HttpResponse(image['Body'].read(), content_type='image/jpeg')
+                except:
+                    return Response('A default image is not uploaded.', status=status.HTTP_404_NOT_FOUND)
+            return Response(e, status=error_code)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        image_file = request.data.get('image')
+        s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+        bucket = settings.AWS_STORAGE_BUCKET_NAME
+        image_name = 'media/' + f'{instance.id}'
+        try:
+            s3.head_object(Bucket=bucket, Key=image_name)
+            s3.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=image_name)
+        except ClientError as e:
+            error_code = e.response["ResponseMetadata"]["HTTPStatusCode"]
+            if error_code != 404:
+                return Response(e, status=error_code)
+
+        s3.upload_fileobj(image_file, settings.AWS_STORAGE_BUCKET_NAME, image_name)
+        image = s3.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=image_name)
+        return HttpResponse(image['Body'].read(), content_type='image/jpeg')
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        bucket = settings.AWS_STORAGE_BUCKET_NAME
+        image_name = 'media/' + f'{instance.id}'
+        s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+
+        try:
+            s3.head_object(Bucket=bucket, Key=image_name)
+            s3.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=image_name)
+        except ClientError as e:
+            error_code = e.response["ResponseMetadata"]["HTTPStatusCode"]
+            return Response(e, status=error_code)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
