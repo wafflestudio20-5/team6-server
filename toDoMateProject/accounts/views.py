@@ -18,7 +18,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from .models import User, Code
 from .permissions import IsCreator, IsCreatorOrReadOnly
 from .serializers import UserDetailSerializer, CustomUserDetailSerializer, UserImageSerializer, \
-    CustomRegisterSerializer, CodeSerializer, PasswordResetConfirmSerializer
+    CustomRegisterSerializer, CodeSerializer, PasswordResetConfirmSerializer, GoogleLoginSerializer, \
+    GoogleConnectSerializer
 
 # Social Login
 from dj_rest_auth.registration.views import SocialLoginView, SocialConnectView, ResendEmailVerificationView
@@ -124,14 +125,14 @@ class CustomUserDetailsView(UserDetailsView):
 
 
 # Social login
-class GoogleLogin(SocialLoginView): # if you want to use Authorization Code Grant, use this
+class GoogleLogin(SocialLoginView):  # if you want to use Authorization Code Grant, use this
     adapter_class = GoogleOAuth2Adapter
-    client_class = OAuth2Client
+    serializer_class = GoogleLoginSerializer
 
 
 class GoogleConnect(SocialConnectView):
     adapter_class = GoogleOAuth2Adapter
-    client_class = OAuth2Client
+    serializer_class = GoogleConnectSerializer
 
 
 class KakaoLogin(SocialLoginView):
@@ -159,7 +160,8 @@ class UserImageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         image_name = 'media/' + f'{instance.id}'
-        s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+        s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
         try:
             image = s3.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=image_name)
             return HttpResponse(image['Body'].read(), content_type='image/jpeg')
@@ -180,7 +182,8 @@ class UserImageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         serializer.is_valid(raise_exception=True)
 
         image_file = request.data.get('image')
-        s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+        s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
         bucket = settings.AWS_STORAGE_BUCKET_NAME
         image_name = 'media/' + f'{instance.id}'
         try:

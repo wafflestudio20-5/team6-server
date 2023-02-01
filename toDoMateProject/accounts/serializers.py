@@ -1,15 +1,19 @@
+import requests
 from allauth.account import app_settings as allauth_settings
 from allauth.account.adapter import get_adapter
 from allauth.account.models import EmailAddress
+from allauth.socialaccount.helpers import complete_social_login
 from allauth.utils import email_address_exists
-from django.contrib.auth import authenticate
+from django.conf import settings
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.forms import SetPasswordForm
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from requests.exceptions import HTTPError
 import datetime
 from rest_framework import serializers
 from dj_rest_auth.serializers import LoginSerializer
-from dj_rest_auth.registration.serializers import RegisterSerializer
+from dj_rest_auth.registration.serializers import RegisterSerializer, SocialLoginSerializer, SocialConnectMixin
 from .models import User, Code
 
 
@@ -61,6 +65,96 @@ class CustomLoginSerializer(LoginSerializer):
         attrs["user"] = user
 
         return attrs
+
+
+class GoogleLoginSerializer(SocialLoginSerializer):
+    def validate(self, attrs):
+        view = self.context.get('view')
+        request = self._get_request()
+
+        if not view:
+            raise serializers.ValidationError(
+                _('View is not defined, pass it as a context variable'),
+            )
+
+        adapter_class = getattr(view, 'adapter_class', None)
+        if not adapter_class:
+            raise serializers.ValidationError(_('Define adapter_class in view'))
+
+        adapter = adapter_class(request)
+        app = adapter.get_provider().get_app(request)
+
+        # More info on code vs access_token
+        # http://stackoverflow.com/questions/8666316/facebook-oauth-2-0-code-and-token
+
+        access_token = attrs.get('access_token')
+        code = attrs.get('code')
+        # Case 1: We received the access_token
+        if access_token:
+            tokens_to_parse = {'access_token': access_token}
+            token = access_token
+            # For sign in with apple
+            id_token = attrs.get('id_token')
+            if id_token:
+                tokens_to_parse['id_token'] = id_token
+
+        # Case 2: We received the authorization code
+        elif code:
+            google_info = settings.SOCIALACCOUNT_PROVIDERS['google']
+            client_id = google_info['APP']['client_id']
+            client_secret = google_info['APP']['secret']
+            callback_url = 'https://wafmate.com/fragment/mainpage/oauth'
+
+            token_req = requests.post(
+                f"https://oauth2.googleapis.com/token?client_id={client_id}&client_secret={client_secret}&code={code}&grant_type=authorization_code&redirect_uri={callback_url}")
+            token_req_json = token_req.json()
+            error = token_req_json.get("error")
+            if error:
+                raise serializers.ValidationError(error)
+
+            access_token = token_req_json.get('access_token')
+            token = access_token
+            tokens_to_parse = {'access_token': access_token}
+
+        else:
+            raise serializers.ValidationError(
+                _('Incorrect input. access_token or code is required.'),
+            )
+
+        social_token = adapter.parse_token(tokens_to_parse)
+        social_token.app = app
+
+        try:
+            login = self.get_social_login(adapter, app, social_token, token)
+            complete_social_login(request, login)
+        except HTTPError:
+            raise serializers.ValidationError(_('Incorrect value'))
+
+        if not login.is_existing:
+            # We have an account already signed up in a different flow
+            # with the same email address: raise an exception.
+            # This needs to be handled in the frontend. We can not just
+            # link up the accounts due to security constraints
+            if allauth_settings.UNIQUE_EMAIL:
+                # Do we have an account already with this email address?
+                account_exists = get_user_model().objects.filter(
+                    email=login.user.email,
+                ).exists()
+                if account_exists:
+                    raise serializers.ValidationError(
+                        _('User is already registered with this e-mail address.'),
+                    )
+
+            login.lookup()
+            login.save(request, connect=True)
+
+        attrs['user'] = login.account.user
+
+        return attrs
+
+
+class GoogleConnectSerializer(SocialConnectMixin, GoogleLoginSerializer):
+    pass
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
