@@ -207,3 +207,4 @@ class IsBlockingNowDetailView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FolloweeSerializer
     
+# test
