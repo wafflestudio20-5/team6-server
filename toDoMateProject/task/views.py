@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models.functions import Cast
 from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 
 from task.permissions import IsOwnerOrReadOnly, is_following
 from task.models import Task#, Tag
@@ -156,13 +158,12 @@ class TaskSearchListView(generics.ListAPIView):
         if is_following(self.request, uid):
             return Task.objects.filter(created_by_id=uid).annotate(str_date=Cast('date', TextField()))
         else:
-            return ['Error']
+            return ['No permission']
         
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        if queryset == ['Error']:
-            content = {"detail" : "No permission(folllow)."}
-            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        if queryset == ['No permission']:
+            return Response({"detail" : "No permission(folllow)."}, status=status.HTTP_401_UNAUTHORIZED)
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -181,20 +182,17 @@ class TaskSearchDateListView(generics.ListAPIView):
         date = self.kwargs['date']
         if is_following(self.request, uid):
             queryset = Task.objects.filter(created_by_id=uid, date=date).annotate(str_date=Cast('date', TextField()))
-            return queryset if queryset else ['Empty queryset']
+            return queryset
         else:
-            return ['Error']
+            return ['No permission']
         
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        if queryset == ['Error']:
-            content = {"detail" : "No permission(folllow)."}
-            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        if queryset == ['No permission']:
+            return Response({"detail" : "No permission(folllow)."}, status=status.HTTP_401_UNAUTHORIZED)
         
-        if queryset == ['Empty queryset']:
-            date = self.kwargs['date']
-            content = {"detail" : f"No task found({date})."}
-            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        # if queryset == ['Empty queryset']:
+        #     return Response(data={'detail' : f"No tasks {self.kwargs['date']}"}, status=status.HTTP_200_OK)
         
         page = self.paginate_queryset(queryset)
         if page is not None:

@@ -4,6 +4,7 @@ from django.shortcuts import redirect, get_object_or_404
 from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
 from accounts.models import User
 from diary.models import Diary, Comment
@@ -122,13 +123,12 @@ class DiarySearchListView(generics.ListAPIView):
         if is_following(self.request, uid):
             return Diary.objects.filter(created_by_id=uid).annotate(str_date=Cast('date', TextField()))
         else:
-            return ['Error']
+            return ['No permission']
     
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        if queryset == ['Error']:
-            content = {"detail" : "No permission(folllow)."}
-            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        if queryset == ['No permission']:
+            return Response({"detail" : "No permission(folllow)."}, status=status.HTTP_401_UNAUTHORIZED)
                 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -148,20 +148,19 @@ class DiarySearchDateListView(generics.ListAPIView):
         date = self.kwargs['date']
         if is_following(self.request, uid):
             queryset = Diary.objects.filter(created_by_id=uid, date=date).annotate(str_date=Cast('date', TextField()))
-            return queryset if queryset else ['Empty queryset']
+            return queryset
         else:
-            return ['Error']
+            return ['No permission']
         
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        if queryset == ['Error']:
-            content = {"detail" : "No permission(folllow)."}
-            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        if queryset == ['No permission']:
+            return Response({"detail" : "No permission(folllow)."}, status=status.HTTP_401_UNAUTHORIZED)
         
-        if queryset == ['Empty queryset']:
-            date = self.kwargs['date']
-            content = {"detail" : f"No task found({date})."}
-            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+        # if queryset == ['Empty queryset']:
+        #     date = self.kwargs['date']
+        #     content = {"detail" : f"No task found({date})."}
+        #     return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
         
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -172,22 +171,33 @@ class DiarySearchDateListView(generics.ListAPIView):
         return Response(serializer.data)
     
     serializer_class = DiaryListSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticated]
   
   
 class SearchUserDetailView(generics.RetrieveAPIView):
     def get_object(self):
-        if 'email' not in self.request.data:
-            content = {"There's no email data."}
+        email = self.kwargs['email']
+        if not email:
             return "Email Not Found"
-        user = get_user_by_email(self.request.data['email'])
-        return user
+        try:
+            user = User.objects.get(email=email)
+            if user.id == self.request.user.id:
+                return "It's me"
+            return user
+        except User.DoesNotExist:
+            return "User Not Found"
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance == "Email Not Found":
             content = {"detail" : "There's no email data."}
-            return HttpResponseBadRequest(json.dumps(content), content_type='application/json')
+            return Response(data=content, status=status.HTTP_404_NO_CONTENT)
+        if instance == "User Not Found":
+            content = {'detail' : f'User({self.kwargs["email"]}) not found'}
+            return Response(data=content, status=status.HTTP_200_OK)
+        if instance == "It's me":
+            return Response(data='', status=status.HTTP_204_NO_CONTENT)
+        
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
