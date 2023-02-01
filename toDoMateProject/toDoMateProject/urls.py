@@ -42,7 +42,7 @@ urlpatterns = [
     path('task/', include('task.urls')),
     path('diary/', include('diary.urls')),
     path('follow/', include('follow.urls')),
-    path('search/', SearchUserDetailView.as_view()),
+    re_path('search/(?P<email>.+)/$', SearchUserDetailView.as_view()),
     # Debug toolbar
     path('__debug__/', include('debug_toolbar.urls')),
     # Swagger
