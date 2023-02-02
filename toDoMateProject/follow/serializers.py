@@ -5,8 +5,6 @@ from accounts.models import User
 
 
 def get_following_or_not(user1, user2):
-    # user1 = User.objects.get(id=uid1)
-    # user2 = User.objects.get(id=uid2)
     try:
         Follow.objects.get(from_user=user1, to_user=user2)
         return True

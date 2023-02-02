@@ -13,7 +13,6 @@ urlpatterns = [
     path('followee/detail/<fid>', FolloweeDetailView.as_view()),
     
     path('block', block_user),
-    # path('unblock/', unblock_user),
     path('block/list', BlockUserListView.as_view()),
     path('block/detail/<fid>', BlockDetailView.as_view()), 
     path('blocked/list', BlockedUserListView.as_view()),
