@@ -216,12 +216,13 @@ class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'nickname', 'detail']
+        read_only_fields = ['id', 'email']
 
 
 class CustomUserDetailSerializer(UserDetailSerializer):
     def to_internal_value(self, data):
         data = data.get("user")
-        return super().to_representation(data)
+        return super().to_internal_value(data)
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
