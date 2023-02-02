@@ -57,16 +57,25 @@ class DiaryRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
 
-@api_view(['GET'])
-def diary_redirect(request, *args, **kwargs):
-    uid = request.user.id
-    date = kwargs.get('date')
-    diary = Diary.objects.filter(created_by_id=uid, date=date).first()
+class DiaryDateListView(generics.RetrieveAPIView):
+    def get_object(self):
+        uid = self.request.user.id
+        date = self.kwargs['date']
+        return Diary.objects.filter(created_by_id=uid, date=date).annotate(str_date=Cast('date', TextField()))
 
-    if diary:
-        return redirect(BASE_URL + f"/diary/mydiary/{date}/update")
-    else:
-        return redirect(BASE_URL + f"/diary/mydiary/{date}/create")
+    serializer_class = DiaryListSerializer
+    permission_classes = [IsAuthenticated]
+
+#@api_view(['GET'])
+#def diary_redirect(request, *args, **kwargs):
+#    uid = request.user.id
+#    date = kwargs.get('date')
+#    diary = Diary.objects.filter(created_by_id=uid, date=date).first()
+
+#    if diary:
+#        return redirect(BASE_URL + f"/diary/mydiary/{date}/update")
+#    else:
+#        return redirect(BASE_URL + f"/diary/mydiary/{date}/create")
 
 
 class DiaryWatchView(generics.RetrieveUpdateDestroyAPIView):
