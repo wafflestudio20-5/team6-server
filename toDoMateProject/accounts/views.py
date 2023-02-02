@@ -167,13 +167,14 @@ class UserImageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             return HttpResponse(image['Body'].read(), content_type='image/jpeg')
         except ClientError as e:
             error_code = e.response["ResponseMetadata"]["HTTPStatusCode"]
+            error_msg = e.response['Error']['Message']
             if error_code == 404:
                 try:
                     image = s3.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key='media/default.jpg')
                     return HttpResponse(image['Body'].read(), content_type='image/jpeg')
                 except:
                     return Response('A default image is not uploaded.', status=status.HTTP_404_NOT_FOUND)
-            return Response(e, status=error_code)
+            return Response(error_msg, status=error_code)
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -191,8 +192,9 @@ class UserImageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             s3.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=image_name)
         except ClientError as e:
             error_code = e.response["ResponseMetadata"]["HTTPStatusCode"]
+            error_msg = e.response['Error']['Message']
             if error_code != 404:
-                return Response(e, status=error_code)
+                return Response(error_msg, status=error_code)
 
         s3.upload_fileobj(image_file, settings.AWS_STORAGE_BUCKET_NAME, image_name)
         image = s3.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=image_name)
@@ -210,6 +212,7 @@ class UserImageRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             s3.delete_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=image_name)
         except ClientError as e:
             error_code = e.response["ResponseMetadata"]["HTTPStatusCode"]
-            return Response(e, status=error_code)
+            error_msg = e.response['Error']['Message']
+            return Response(error_msg, status=error_code)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
