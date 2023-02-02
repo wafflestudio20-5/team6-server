@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 from accounts.models import User
+from follow.models import Block
 from diary.models import Diary, Comment
 from diary.permissions import IsOwnerOrReadOnly, is_following
 from diary.serializers import DiaryListSerializer, DiaryListCreateSerializer, DiaryRetrieveUpdateDeleteSerializer, \
@@ -179,13 +180,25 @@ class SearchUserDetailView(generics.RetrieveAPIView):
         email = self.kwargs['email']
         if not email:
             return "Email Not Found"
+        
         try:
             user = User.objects.get(email=email)
             if user.id == self.request.user.id:
                 return "It's me"
-            return user
+            ret = user
         except User.DoesNotExist:
             return "User Not Found"
+
+        try:
+            block = Block.objects.get(block_from_user=user, block_to_user=self.request.user)
+            return "Blocked"
+        except Block.DoesNotExist:
+            # return ret
+            try:
+                block = Block.objects.get(block_from_user=self.request.user, block_to_user=user)
+                return "Blocked"
+            except Block.DoesNotExist:
+                return ret
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -196,7 +209,11 @@ class SearchUserDetailView(generics.RetrieveAPIView):
             content = {'detail' : f'User({self.kwargs["email"]}) not found'}
             return Response(data=content, status=status.HTTP_200_OK)
         if instance == "It's me":
-            return Response(data='', status=status.HTTP_204_NO_CONTENT)
+            content = {'detail' : None}
+            return Response(data=content, status=status.HTTP_200_OK)
+        if instance == 'Blocked':
+            content = {'detail' : 'blocked'}
+            return Response(data=content, status=status.HTTP_200_OK)
         
         serializer = self.get_serializer(instance)
         return Response(serializer.data)

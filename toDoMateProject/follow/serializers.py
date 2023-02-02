@@ -49,4 +49,20 @@ class BlockUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
         fields = ['from_user_email', 'to_user_email', 'from_user_id', 'to_user_id', 'from_user_nickname', 'to_user_nickname']
+
+
+class BlockedUserSerializer(serializers.ModelSerializer):
+    from_user_email = serializers.EmailField()
+    from_user_id = serializers.IntegerField()
+    from_user_nickname = serializers.CharField()
+    
+    def to_representation(self, data):
+        response = {'from_user_email' : data.block_from_user.email,
+                    'from_user_id' : data.block_from_user.id,
+                    'from_user_nickname' : data.block_from_user.nickname}
+        return response
+
+    class Meta:
+        model = Follow
+        fields = ['from_user_email', 'to_user_email', 'from_user_id', 'to_user_id', 'from_user_nickname', 'to_user_nickname']
         
