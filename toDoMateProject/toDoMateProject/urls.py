@@ -21,6 +21,8 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from diary.views import SearchUserDetailView
+from follow.views import follow_user
+
 
 schema_view = get_schema_view(
     openapi.Info(

@@ -19,6 +19,8 @@ from rest_framework.response import Response
 from django.http import Http404, HttpResponseBadRequest, HttpResponseNotFound
 import json
 
+from follow.serializers import get_following_or_not
+
 # BASE_URL = "http://ec2-3-38-100-94.ap-northeast-2.compute.amazonaws.com:8000"
 BASE_URL = "http://3.38.100.94"
 
@@ -59,8 +61,18 @@ class DiaryRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class DiaryDateListView(generics.RetrieveAPIView):
-    def get_object(self):
+# class DiaryDateListView(generics.RetrieveAPIView):
+#     def get_object(self):
+#         uid = self.request.user.id
+#         date = self.kwargs['date']
+#         return Diary.objects.filter(created_by_id=uid, date=date).annotate(str_date=Cast('date', TextField())).first()
+
+#     serializer_class = DiaryListSerializer
+#     permission_classes = [IsAuthenticated]
+
+
+class DiaryDateListView(generics.ListAPIView):
+    def get_queryset(self):
         uid = self.request.user.id
         date = self.kwargs['date']
         return Diary.objects.filter(created_by_id=uid, date=date).annotate(str_date=Cast('date', TextField()))
@@ -225,7 +237,9 @@ class SearchUserDetailView(generics.RetrieveAPIView):
             return Response(data=content, status=status.HTTP_200_OK)
         
         serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        new_data = {'is_following' : get_following_or_not(self.request.user, instance)}
+        new_data.update(serializer.data)
+        return Response(new_data)
 
     serializer_class = UserDetailSerializer
     permission_classes = [IsAuthenticated]
