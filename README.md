@@ -23,9 +23,6 @@
 <img src="https://img.shields.io/badge/Amazon S3-569A31??style=flat&logo=AmazonS3&logoColor=white"/></br>
 Platfrom : Linux/UNIX (AWS Linux 2 Free-tier) </br>
  Database : AWS RDS / MySQL / db.t3.micro </br>
-
-// &#160; &#160; &#160; &#160; 기타 사항은 [requirements.txt](https://github.com/wafflestudio20-5/team6-server/blob/develop/toDoMateProject/requirements.txt) 참고  &#160; &#160; &#160; &#160;//
-
   </p> 
 </div>
 </br>
