@@ -11,7 +11,7 @@
  <strong>Waffle mate REST API Server</strong>
 
 본 프로젝트는 [todo mate](https://www.todomate.net/) 애플리케이션의 클론 코딩입니다. </br>주요 기능으로는 일정 관리와 일기 작성 등이 있으며, </br>다른 사람을 팔로우하고 댓글을 작성하는 등 다른 유저와의 소통 또한 가능합니다.
-</br></br></br>
+</br></br>
 ## ⚒️ Software Stack ⚒️
 ### < Requirements & Environments >
 
@@ -21,14 +21,14 @@
 <img src="https://img.shields.io/badge/Amazon EC2-FF9900??style=flat&logo=Amazonec2&logoColor=white"/>
 <img src="https://img.shields.io/badge/Amazon RDS-527FFF??style=flat&logo=Amazonrds&logoColor=white"/>
 <img src="https://img.shields.io/badge/Amazon S3-569A31??style=flat&logo=AmazonS3&logoColor=white"/></br>
-  Platfrom : Linux/UNIX (AWS Linux 2 Free-tier) </br>
-  Database : AWS RDS / MySQL / db.t3.micro </br>
+Platfrom : Linux/UNIX (AWS Linux 2 Free-tier) </br>
+ Database : AWS RDS / MySQL / db.t3.micro </br>
 
 // &#160; &#160; &#160; &#160; 기타 사항은 [requirements.txt](https://github.com/wafflestudio20-5/team6-server/blob/develop/toDoMateProject/requirements.txt) 참고  &#160; &#160; &#160; &#160;//
 
   </p> 
 </div>
-</br></br>
+</br>
 
 ## 🚀 Installation
   ```
