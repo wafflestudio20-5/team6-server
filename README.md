@@ -47,7 +47,6 @@ Platfrom : Linux/UNIX (AWS Linux 2 Free-tier) </br>
 </br>
 
 ## 🔥 Details
-</br>
 <p>
 <h style="font-size:120%"><strong>1. Diary</strong></h>
 
@@ -99,7 +98,8 @@ Platfrom : Linux/UNIX (AWS Linux 2 Free-tier) </br>
 </br>
 
 ## ✨ Contributing
-서비스 개선을 위한 제안이 있으시다면, [Issue](https://github.com/wafflestudio20-5/team6-server/issues) 또는 [Pull Request](https://github.com/wafflestudio20-5/team6-server/pulls)을 자유롭게 이용해 주세요!
+[Pull Request](https://github.com/wafflestudio20-5/team6-server/pulls)는 언제나 환영입니다!  
+서비스 개선점이나 버그는 [Issue](https://github.com/wafflestudio20-5/team6-server/issues)를 자유롭게 이용해 주세요!
 
 ### 😊 Contributors
 * [@kjae0](https://github.com/kjae0)
