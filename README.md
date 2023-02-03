@@ -21,6 +21,8 @@
 <img src="https://img.shields.io/badge/Amazon EC2-FF9900??style=flat&logo=Amazonec2&logoColor=white"/>
 <img src="https://img.shields.io/badge/Amazon RDS-527FFF??style=flat&logo=Amazonrds&logoColor=white"/>
 <img src="https://img.shields.io/badge/Amazon S3-569A31??style=flat&logo=AmazonS3&logoColor=white"/></br>
+<img src="https://img.shields.io/badge/NGINX-009639??style=flat&logo=NGINX&logoColor=white"/>
+<img src="https://img.shields.io/badge/Gunicorn-499848??style=flat&logo=Gunicorn&logoColor=white"/></br>
 Platfrom : Linux/UNIX (AWS Linux 2 Free-tier) </br>
  Database : AWS RDS / MySQL / db.t3.micro </br>
   </p> 
@@ -92,7 +94,7 @@ Platfrom : Linux/UNIX (AWS Linux 2 Free-tier) </br>
 * 본 프로젝트는 Django REST framework을 기반한 REST API 서버로, 별도의 프론트엔드 클라이언트가 필요합니다.
 * 구글과 카카오톡 로그인을 지원하며, 이를 위해서는 구글 클라우드 플랫폼과 카카오 Developers에서 자신의 프로젝트를 따로 등록해야 합니다. 
 * 데이터베이스로는 MySQL을 사용하고 있습니다.
-* 서버는 Amazon EC2을 통해 호스팅하고 있습니다.
+* 서버는 Amazon EC2/Gunicorn/NGINX를 통해 호스팅하고 있습니다.
 * Amazon S3을 사용하여 이미지를 관리하기 위해서는 별도의 설정이 필요합니다.
 
 </br>
