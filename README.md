@@ -21,8 +21,8 @@
 <img src="https://img.shields.io/badge/Amazon EC2-FF9900??style=flat&logo=Amazonec2&logoColor=white"/>
 <img src="https://img.shields.io/badge/Amazon RDS-527FFF??style=flat&logo=Amazonrds&logoColor=white"/>
 <img src="https://img.shields.io/badge/Amazon S3-569A31??style=flat&logo=AmazonS3&logoColor=white"/></br>
- * Platfrom : Linux/UNIX (AWS Linux 2 Free-tier) </br>
- * Database : AWS RDS / MySQL / db.t3.micro </br>
+  Platfrom : Linux/UNIX (AWS Linux 2 Free-tier) </br>
+  Database : AWS RDS / MySQL / db.t3.micro </br>
 
 // &#160; &#160; &#160; &#160; 기타 사항은 [requirements.txt](https://github.com/wafflestudio20-5/team6-server/blob/develop/toDoMateProject/requirements.txt) 참고  &#160; &#160; &#160; &#160;//
 
@@ -47,73 +47,69 @@
   ```
 
 
-### Note
-* 본 프로젝트는 Django REST framework을 기반한 REST API 서버로 별도의 프론트엔드 클라이언트가 필요합니다.
+</br>
+
+## 🔥 Details
+</br>
+<p>
+<h style="font-size:120%"><strong>1. Diary</strong></h>
+
+- 날짜 / 유저 별로 <strong>일기 CRUD</strong>
+- 일기 조회에 <strong>follow authorization</strong> 설정
+- 각 일기에 댓글 달기 가능
+</p>
+
+<p>
+<h style="font-size:120%"><strong>2. Task</strong></h>
+
+- 날짜 / 유저 별로 <strong>할 일 CRUD</strong>
+- 성취 여부 / 미루기 기능 추가
+</p>
+
+<p>
+<h style="font-size:120%"><strong>3. Search & Follow</strong></h>
+
+- 이메일을 통해 <strong>유저 검색</strong> 가능
+- <strong>팔로우 / 차단 기능</strong> 추가
+
+</p>
+
+<p>
+<h style="font-size:120%"><strong>4. Comment</strong></h>
+
+- 일기에 <strong>댓글 CRUD</strong>
+- 댓글을 달 때 <strong>follow authorization</strong> 설정
+</p>
+
+<p>
+<h style="font-size:120%"><strong>5. Account</strong></h>
+
+- <strong>유저 정보 CRUD</strong>
+- <strong>회원가입 / 로그인 / 소셜 로그인</strong> (구글 & 카카오)
+- 소셜 계정 연동
+- 인증번호 재전송 및 부가기능
+</p>
+
+</br>
+
+### ✔️ Note
+* 본 프로젝트는 Django REST framework을 기반한 REST API 서버로, 별도의 프론트엔드 클라이언트가 필요합니다.
 * 구글과 카카오톡 로그인을 지원하며, 이를 위해서는 구글 클라우드 플랫폼과 카카오 Developers에서 자신의 프로젝트를 따로 등록해야 합니다. 
 * 데이터베이스로는 MySQL을 사용하고 있습니다.
 * 서버는 Amazon EC2을 통해 호스팅하고 있습니다.
 * Amazon S3을 사용하여 이미지를 관리하기 위해서는 별도의 설정이 필요합니다.
 
+</br>
 
-
-## Detail 
-추가 요망
-<p>
-<h>1. 다이어리</h>
-
-- 날짜별 일기 등록
-- 일기 제목 및 내용 수정, 삭제
-- 전체 일기 목록, 각 날짜의 일기 조회
-- 다른 사람의 일기 조회(팔로우 한정)
-
-</p>
-
-<p>
-<h>2. 할 일 목록</h>
-
-- 날짜별 할 일 등록
-- 날짜나 내용 변경 및 할 일 삭제
-- 할 일 성취 여부 변경
-- 할 일 하루 미루기
-- 전체 할 일, 각 날짜의 할 일 조회
-
-</p>
-
-<p>
-<h>3. 팔로우</h>
-
-
-</p>
-
-<p>
-<h>4. 댓글</h>
-
-- 팔로우 관계인 사람의 일기에 댓글 달기
-- 댓글 내용 수정 및 삭제
-
-</p>
-
-<p>
-<h>5. 계정</h>
-
-- 회원가입
-- 로그인
-- 소셜 로그인 (구글, 카카오)
-- 소셜 계정 연동
-- 비밀번호 초기화 및 재설정
-- 인증번호 재전송
-- 유저 정보 조회 및 수정
-- 회원탈퇴
-</p>
-
-
-## Contributing
+## ✨ Contributing
 서비스 개선을 위한 제안이 있으시다면, [Issue](https://github.com/wafflestudio20-5/team6-server/issues) 또는 [Pull Request](https://github.com/wafflestudio20-5/team6-server/pulls)을 자유롭게 이용해 주세요!
 
-### Contributors
+### 😊 Contributors
 * [@kjae0](https://github.com/kjae0)
 * [@mathema123](https://github.com/mathema123)
 * [@sungsung718](https://github.com/sungsung718)
 
-## License
-MIT
+</br>
+
+## 📄 License
+MIT License
