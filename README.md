@@ -4,9 +4,9 @@
   <a href="https://github.com/wafflestudio/snutt-ios">
     <img src="https://user-images.githubusercontent.com/102639700/216500052-d46faea8-8b54-4553-9e9d-c3c994aa3774.PNG" alt="Logo" width="120" height="130">
   </a>
-  <h3 align="center">Waffle mate</h3>
+  <h3 align="center">🧇 Waffle mate 🧇</h3>
   <p align="center">
- 일정/일기 공유를 통한 효과적인 일정관리를 경험하세요
+ // 일정/일기 공유를 통한 효과적인 일정관리를 경험하세요 //
   </p> 
 </div>
 
@@ -15,8 +15,9 @@ Waffle mate REST API Server
 
 본 프로젝트는 [todo mate](https://www.todomate.net/) 애플리케이션의 클론 코딩입니다. 주요 기능으로는 일정 관리와 일기 작성 등이 있으며, 다른 사람을 팔로우하고 댓글을 작성하는 등 다른 유저와의 소통 또한 가능합니다.
 
-## 개발 환경 (서버 환경)
-추가 요망
+## 서버 환경
+ * Platfrom : Linux/UNIX (AWS Linux 2 Free-tier)
+ * Database : AWS RDS / MySQL / db.t3.micro 
 
 ## Software Stack
 ### Requirements
